@@ -24,15 +24,16 @@ import com.desmin.repositories.UserRepository;
 @Repository
 @Transactional
 public class UserRepositoryImpl implements UserRepository {
-   @Autowired
+
+    @Autowired
     private LocalSessionFactoryBean factory;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-    
+
     @Override
     public User getUserByUsername(String username) {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createNamedQuery("TaiKhoan.findByUsername", User.class);
+        Query q = s.createNamedQuery("User.findByUsername", User.class);
         q.setParameter("username", username);
         return (User) q.getSingleResult();
 
@@ -40,20 +41,17 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User addUser(User tk) {
-         Session s = this.factory.getObject().getCurrentSession();
+        Session s = this.factory.getObject().getCurrentSession();
         s.persist(tk);
-        
+
         return tk;
     }
 
     @Override
     public boolean authenticate(String username, String password) {
-         User u = this.getUserByUsername(username);
+        User u = this.getUserByUsername(username);
 
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 
-   
-    
 }
-

@@ -47,25 +47,28 @@ public class SpringSecurityConfigs {
         return new BCryptPasswordEncoder();
     }
 
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(c -> c.disable())
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/home").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/bai-viet/**").permitAll()
-            .requestMatchers("/api/auth/**", "/api/login", "/api/users").permitAll() // Thêm /api/login và /api/users
-            .requestMatchers(HttpMethod.POST, "/api/bai-viet/*/like").authenticated()
-            .requestMatchers(HttpMethod.POST, "/api/bai-viet/*/comment").authenticated()
-            .requestMatchers("/api/ctsv/**").hasRole("CVCTSV")
-            .requestMatchers("/api/tro-ly/**").hasRole("TRO_LY_SINH_VIEN")
-            .requestMatchers("/api/sinh-vien/**").hasRole("SINH_VIEN")
-            .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
-            .anyRequest().authenticated()
-        );
-    return http.build();
-}
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(c -> c.disable())
+                .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/home").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bai-viet/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/khoas","api/lops").permitAll()
+                .requestMatchers("/api/auth/**", "/api/login", "/api/users").permitAll() // Thêm /api/login và /api/users
+                .requestMatchers(HttpMethod.POST, "/api/bai-viet/*/like").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/secure/profile").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/bai-viet/*/comment").authenticated()
+                .requestMatchers("/api/ctsv/**").hasRole("CVCTSV")
+                .requestMatchers("/api/tro-ly/**").hasRole("TRO_LY_SINH_VIEN")
+                .requestMatchers("/api/sinh-vien/**").hasRole("SINH_VIEN")
+                .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
+                .anyRequest().permitAll()
+                );
+        return http.build();
+    }
+
     @Bean
     public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
         return new HandlerMappingIntrospector();
@@ -104,4 +107,5 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 
         return source;
     }
+    
 }

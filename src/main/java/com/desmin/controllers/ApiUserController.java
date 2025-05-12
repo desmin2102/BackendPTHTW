@@ -37,10 +37,6 @@ public class ApiUserController {
     @Autowired
     private UserService userDetailsService;
 
-    @PostConstruct
-    public void init() {
-        System.out.println("ApiUserController initialized");
-    }
 
     @PostMapping(path = "/users", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestParam Map<String, String> params,
@@ -83,12 +79,7 @@ public class ApiUserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User u) {
-        try {
-            System.out.println("Login attempt for username: " + (u != null ? u.getUsername() : "null"));
-            if (u == null || u.getUsername() == null || u.getPassword() == null) {
-                System.out.println("Invalid login request: Missing username or password");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thiếu tên đăng nhập hoặc mật khẩu");
-            }
+    
             if (this.userDetailsService.authenticate(u.getUsername(), u.getPassword())) {
                 try {
                     String token = JwtUtils.generateToken(u.getUsername());
@@ -101,10 +92,7 @@ public class ApiUserController {
             }
             System.out.println("Login failed for username: " + u.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
-        } catch (Exception e) {
-            System.err.println("Error processing login: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi đăng nhập: " + e.getMessage());
-        }
+      
     }
 
     @GetMapping("/secure/profile")
@@ -129,9 +117,5 @@ public class ApiUserController {
         }
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        System.out.println("Test endpoint called");
-        return new ResponseEntity<>("Test endpoint is working", HttpStatus.OK);
-    }
+  
 }

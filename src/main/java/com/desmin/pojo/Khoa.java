@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "khoa")
+@NamedQueries({
+    @NamedQuery(name = "Khoa.findAll", query = "SELECT k FROM Khoa k"),
+    @NamedQuery(name = "Khoa.findById", query = "SELECT k FROM Khoa k WHERE k.id = :id"),})
+
 public class Khoa {
 
     @Id

@@ -10,9 +10,6 @@ public class Dieu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ma_dieu", nullable = false, unique = true)
-    private String maDieu;
-
     @Column(name = "ten_dieu", nullable = false)
     private String tenDieu;
 
@@ -32,13 +29,6 @@ public class Dieu {
         this.id = id;
     }
 
-    public String getMaDieu() {
-        return maDieu;
-    }
-
-    public void setMaDieu(String maDieu) {
-        this.maDieu = maDieu;
-    }
 
     public String getTenDieu() {
         return tenDieu;
