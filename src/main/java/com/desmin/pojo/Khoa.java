@@ -1,0 +1,55 @@
+package com.desmin.pojo;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "khoa")
+public class Khoa {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "ma_khoa", nullable = false, unique = true)
+    private String maKhoa;
+
+    @Column(name = "ten_khoa", nullable = false)
+    private String tenKhoa;
+
+    // Audit
+    @Column(nullable = false)
+    private boolean active = true;
+
+    // Getters và Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getMaKhoa() {
+        return maKhoa;
+    }
+
+    public void setMaKhoa(String maKhoa) {
+        this.maKhoa = maKhoa;
+    }
+
+    public String getTenKhoa() {
+        return tenKhoa;
+    }
+
+    public void setTenKhoa(String tenKhoa) {
+        this.tenKhoa = tenKhoa;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+}
