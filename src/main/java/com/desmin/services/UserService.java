@@ -17,5 +17,6 @@ public interface UserService extends UserDetailsService {
     User getUserByUsername(String username);
     User addSinhVien(Map<String, String> params, MultipartFile avatar);
     User addTroLySinhVien(Map<String, String> params, MultipartFile avatar);
+    User addCVCTSV(Map<String, String> params, MultipartFile avatar);
     boolean authenticate(String username, String password);
 }

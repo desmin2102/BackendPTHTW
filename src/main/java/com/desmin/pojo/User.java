@@ -2,6 +2,7 @@ package com.desmin.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ import java.util.Set;
     @NamedQuery(name = "User.findByActive", query = "SELECT u FROM User u WHERE u.active = :active"),
     @NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role = :role"),
     @NamedQuery(name = "User.findByAvatarUrl", query = "SELECT u FROM User u WHERE u.avatarUrl = :avatarUrl")})
-public class User {
+public class User implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,7 +53,6 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @Basic(optional = false)
     @Column(name = "mssv", unique = true)
     private String mssv;
 
@@ -80,6 +80,7 @@ public class User {
     @JsonIgnore
     private Set<Like> likeSet;
 
+    @JsonIgnore
     @Transient
     private MultipartFile file;
 
@@ -94,8 +95,8 @@ public class User {
             if (mssv == null || ho == null || ten == null || lop == null) {
                 throw new IllegalStateException("Thông tin sinh viên không đầy đủ");
             }
-            if (!email.endsWith("@school.edu.vn")) {
-                throw new IllegalStateException("Email phải thuộc domain @school.edu.vn");
+            if (!email.endsWith("@ou.edu.vn")) {
+    throw new IllegalStateException("Email phải thuộc domain @ou.edu.vn");
             }
             if (!username.equals(email)) {
                 throw new IllegalStateException("Username phải giống email cho sinh viên");
@@ -107,7 +108,7 @@ public class User {
             if (khoaPhuTrach == null) {
                 throw new IllegalStateException("Trợ lý sinh viên phải có khoa phụ trách");
             }
-            if (lop != null || mssv != null || ho != null || ten != null) {
+            if (lop != null || mssv != null ) {
                 throw new IllegalStateException("Trợ lý sinh viên không được có thông tin sinh viên");
             }
         } else {

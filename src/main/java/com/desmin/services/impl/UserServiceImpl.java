@@ -55,7 +55,9 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("Invalid username!");
         }
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(u.getRole().name()));
+        String role = "ROLE_" + u.getRole().name(); // Thêm tiền tố ROLE_
+        System.out.println("User: " + username + ", Role: " + role); // Debug
+        authorities.add(new SimpleGrantedAuthority(role));
         return new org.springframework.security.core.userdetails.User(
                 u.getUsername(), u.getPassword(), authorities);
     }
@@ -98,6 +100,8 @@ public class UserServiceImpl implements UserService {
         User u = new User();
         u.setEmail(params.get("email"));
         u.setUsername(params.get("username"));
+        u.setHo(params.get("ho"));
+        u.setTen(params.get("ten"));
         u.setPassword(this.passwordEncoder.encode(params.get("password")));
         u.setActive(true);
         u.setRole(Role.TRO_LY_SINH_VIEN);
@@ -129,4 +133,37 @@ public class UserServiceImpl implements UserService {
     public boolean authenticate(String username, String password) {
         return this.userRepo.authenticate(username, password);
     }
+
+    @Override
+    public User addCVCTSV(Map<String, String> params, MultipartFile avatar) {
+        try {
+            User u = new User();
+            u.setEmail(params.get("email"));
+            u.setUsername(params.get("username"));
+
+            u.setPassword(this.passwordEncoder.encode(params.get("password")));
+            u.setActive(true);
+            u.setRole(Role.CVCTSV);
+            u.setFile(avatar);  // Lưu avatar nếu có
+
+            // Xử lý avatar
+            if (!u.getFile().isEmpty()) {
+                try {
+                    Map res = cloudinary.uploader().upload(u.getFile().getBytes(),
+                            ObjectUtils.asMap("resource_type", "auto"));
+                    u.setAvatarUrl(res.get("secure_url").toString());
+                } catch (IOException ex) {
+                    Logger.getLogger(UserServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Lỗi khi upload avatar: " + ex.getMessage());
+                }
+            }
+
+            // Lưu người dùng vào cơ sở dữ liệu
+            return this.userRepo.addUser(u);
+        } catch (Exception ex) {
+            Logger.getLogger(UserServiceImpl.class.getName()).log(Level.SEVERE, "Error when creating CVCTSV user", ex);
+            throw new RuntimeException("Lỗi khi tạo người dùng CVCTSV: " + ex.getMessage(), ex);
+        }
+    }
+
 }

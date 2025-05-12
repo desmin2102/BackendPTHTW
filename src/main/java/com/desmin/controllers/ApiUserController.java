@@ -37,11 +37,10 @@ public class ApiUserController {
     @Autowired
     private UserService userDetailsService;
 
-
     @PostMapping(path = "/users", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestParam Map<String, String> params,
-                                   @RequestParam(value = "avatar", required = false) MultipartFile avatar,
-                                   Principal principal) {
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
+            Principal principal) {
         try {
             System.out.println("Creating user with params: " + params);
             if (params == null || params.isEmpty()) {
@@ -50,26 +49,9 @@ public class ApiUserController {
 
             String roleStr = params.getOrDefault("role", "SINH_VIEN");
 
-            if ("TRO_LY_SINH_VIEN".equals(roleStr)) {
-                if (principal == null) {
-                    System.out.println("Unauthorized: No principal provided for creating TRO_LY_SINH_VIEN");
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cần đăng nhập để tạo trợ lý sinh viên");
-                }
-                User currentUser = userDetailsService.getUserByUsername(principal.getName());
-                if (currentUser == null) {
-                    System.out.println("User not found for principal: " + principal.getName());
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng hiện tại không tồn tại");
-                }
-                if (!"CVCTSV".equals(currentUser.getRole().name())) {
-                    System.out.println("Forbidden: User " + principal.getName() + " is not CVCTSV");
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bạn không có quyền tạo trợ lý sinh viên");
-                }
-                User createdUser = this.userDetailsService.addTroLySinhVien(params, avatar);
-                return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-            } else {
-                User createdUser = this.userDetailsService.addSinhVien(params, avatar);
-                return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-            }
+            User createdUser = this.userDetailsService.addSinhVien(params, avatar);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+
         } catch (Exception e) {
             System.err.println("Error creating user: " + e.getMessage());
             e.printStackTrace();
@@ -79,20 +61,20 @@ public class ApiUserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User u) {
-    
-            if (this.userDetailsService.authenticate(u.getUsername(), u.getPassword())) {
-                try {
-                    String token = JwtUtils.generateToken(u.getUsername());
-                    System.out.println("Login successful for username: " + u.getUsername());
-                    return ResponseEntity.ok().body(Collections.singletonMap("token", token));
-                } catch (Exception e) {
-                    System.err.println("Error generating JWT for username: " + u.getUsername() + ", error: " + e.getMessage());
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo JWT: " + e.getMessage());
-                }
+
+        if (this.userDetailsService.authenticate(u.getUsername(), u.getPassword())) {
+            try {
+                String token = JwtUtils.generateToken(u.getUsername());
+                System.out.println("Login successful for username: " + u.getUsername());
+                return ResponseEntity.ok().body(Collections.singletonMap("token", token));
+            } catch (Exception e) {
+                System.err.println("Error generating JWT for username: " + u.getUsername() + ", error: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo JWT: " + e.getMessage());
             }
-            System.out.println("Login failed for username: " + u.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
-      
+        }
+        System.out.println("Login failed for username: " + u.getUsername());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
+
     }
 
     @GetMapping("/secure/profile")
@@ -117,5 +99,40 @@ public class ApiUserController {
         }
     }
 
-  
+    @PostMapping(path = "/secure/tlsv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createTLSV(@RequestParam Map<String, String> params,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
+            Principal principal) {
+        try {
+            System.out.println("Creating TRO_LY_SINH_VIEN with params: " + params);
+            if (params == null || params.isEmpty()) {
+                System.out.println("Bad Request: Missing or empty params");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thiếu thông tin người dùng");
+            }
+            if (principal == null) {
+                System.out.println("Unauthorized: No principal provided for creating TRO_LY_SINH_VIEN");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cần đăng nhập để tạo trợ lý sinh viên");
+            }
+            String username = principal.getName();
+            System.out.println("Fetching user for username: " + username);
+            User currentUser = userDetailsService.getUserByUsername(username);
+            if (currentUser == null) {
+                System.out.println("User not found for username: " + username);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng hiện tại không tồn tại");
+            }
+            if (!"CVCTSV".equals(currentUser.getRole().name())) {
+                System.out.println("Forbidden: User " + username + " is not CVCTSV, role: " + currentUser.getRole().name());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bạn không có quyền tạo trợ lý sinh viên");
+            }
+            System.out.println("User " + username + " authorized with role CVCTSV, proceeding to create TRO_LY_SINH_VIEN");
+            User createdUser = userDetailsService.addTroLySinhVien(params, avatar);
+            System.out.println("TRO_LY_SINH_VIEN created successfully for username: " + createdUser.getUsername());
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        } catch (Exception e) {
+            System.err.println("Error creating TRO_LY_SINH_VIEN: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo trợ lý sinh viên: " + e.getMessage());
+        }
+    }
+
 }
