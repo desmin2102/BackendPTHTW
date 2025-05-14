@@ -1,13 +1,30 @@
 package com.desmin.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "hoat_dong_ngoai_khoa")
-public class HoatDongNgoaiKhoa {
+@NamedQueries({
+    @NamedQuery(name = "HoatDongNgoaiKhoa.findByHanDangKyBefore",
+            query = "SELECT h FROM HoatDongNgoaiKhoa h WHERE h.hanDangKy < :date AND h.active = true"),
+    @NamedQuery(name = "HoatDongNgoaiKhoa.findActiveAndNotExpired",
+            query = "SELECT h FROM HoatDongNgoaiKhoa h WHERE h.active = true AND h.hanDangKy >= :date"),
+    @NamedQuery(name = "HoatDongNgoaiKhoa.findById",
+            query = "SELECT h FROM HoatDongNgoaiKhoa h WHERE h.id = :id"),
+    @NamedQuery(name = "HoatDongNgoaiKhoa.findByUserParticipated",
+            query = "SELECT t.hoatDongNgoaiKhoa FROM ThamGia t WHERE t.sinhVien = :user"),
+     @NamedQuery(name = "HoatDongNgoaiKhoa.findByUserRegisteredOrAttended",
+            query = "SELECT t.hoatDongNgoaiKhoa FROM ThamGia t WHERE t.sinhVien = :user AND t.state IN ('DangKy', 'DiemDanh')")
+       
+})
+public class HoatDongNgoaiKhoa implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,15 +35,13 @@ public class HoatDongNgoaiKhoa {
     @Column(name = "ten_hoat_dong", nullable = false)
     private String tenHoatDong;
 
-    @Column(nullable = false)
-    private LocalDateTime ngay;
-
     @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "diem_ren_luyen", nullable = false)
     private Integer diemRenLuyen = 5;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "han_dang_ky")
     private LocalDate hanDangKy;
 
@@ -38,6 +53,7 @@ public class HoatDongNgoaiKhoa {
     @JoinColumn(name = "hk_nh_id", nullable = false)
     private HocKyNamHoc hkNh;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "hoatDongNgoaiKhoa")
     private List<ThamGia> danhSachThamGia;
 
@@ -45,10 +61,12 @@ public class HoatDongNgoaiKhoa {
     @Column(nullable = false)
     private boolean active = true;
 
-    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
 
-    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate = LocalDateTime.now();
 
     // Getters và Setters
@@ -76,13 +94,7 @@ public class HoatDongNgoaiKhoa {
         this.tenHoatDong = tenHoatDong;
     }
 
-    public LocalDateTime getNgay() {
-        return ngay;
-    }
 
-    public void setNgay(LocalDateTime ngay) {
-        this.ngay = ngay;
-    }
 
     public String getDescription() {
         return description;

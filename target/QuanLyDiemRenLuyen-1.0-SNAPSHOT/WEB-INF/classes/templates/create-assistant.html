@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title th:replace="~{base :: title('Create Assistant')}"></title>
+</head>
+<body>
+    <div th:replace="~{base :: content}">
+        <h2>Create Assistant</h2>
+        <p>Welcome, <span th:text="${username}"></span>!</p>
+        <form th:action="@{/ctsv/create-assistant}" method="post">
+            <label>Username: <input type="text" name="assistantUsername" required /></label><br />
+            <label>Password: <input type="password" name="assistantPassword" required /></label><br />
+            <button type="submit">Create Assistant</button>
+        </form>
+    </div>
+</body>
+</html>

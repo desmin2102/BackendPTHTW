@@ -14,6 +14,6 @@ import java.util.Map;
  */
 public interface KhoaRepository {
     List<Khoa> getKhoas(Map<String, String> params);
-    Khoa getKhoaById(int id);
+    Khoa getKhoaById(long id);
 
 }

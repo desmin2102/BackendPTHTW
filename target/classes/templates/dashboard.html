@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title th:replace="~{base :: title('CVCTSV Dashboard')}"></title>
+</head>
+<body>
+    <div th:replace="~{base :: content}">
+        <h2>CVCTSV Dashboard</h2>
+        <p>Welcome, <span th:text="${username}"></span>!</p>
+        <p>This is the management dashboard for CVCTSV.</p>
+    </div>
+</body>
+</html>

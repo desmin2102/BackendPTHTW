@@ -11,7 +11,13 @@ import com.desmin.pojo.User;
  * @author ADMIN
  */
 public interface UserRepository {
+
     User getUserByUsername(String username);
+
     User addUser(User tk);
+
     boolean authenticate(String username, String password);
+
+    User getUserById(long id);
+
 }

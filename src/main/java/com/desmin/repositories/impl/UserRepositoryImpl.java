@@ -4,6 +4,7 @@
  */
 package com.desmin.repositories.impl;
 
+import com.desmin.pojo.Lop;
 import com.desmin.pojo.User;
 import jakarta.persistence.Query;
 import org.hibernate.Session;
@@ -54,4 +55,9 @@ public class UserRepositoryImpl implements UserRepository {
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 
+    @Override
+    public User getUserById(long id) {
+        Session s = factory.getObject().getCurrentSession();
+        return s.get(User.class, id);
+    }
 }

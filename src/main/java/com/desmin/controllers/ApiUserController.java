@@ -7,21 +7,22 @@ package com.desmin.controllers;
 import com.desmin.pojo.User;
 import com.desmin.services.UserService;
 import com.desmin.utils.JwtUtils;
-import jakarta.annotation.PostConstruct;
 import java.security.Principal;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping; // Thêm import cho endpoint test
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +37,8 @@ public class ApiUserController {
 
     @Autowired
     private UserService userDetailsService;
+//    @Autowired
+//    private HoatDongNgoaiKhoaService hdnkService;
 
     @PostMapping(path = "/users", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestParam Map<String, String> params,
@@ -59,12 +62,18 @@ public class ApiUserController {
         }
     }
 
-    @PostMapping("/login")
+@PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User u) {
-
-        if (this.userDetailsService.authenticate(u.getUsername(), u.getPassword())) {
+        if (userDetailsService.authenticate(u.getUsername(), u.getPassword())) {
             try {
-                String token = JwtUtils.generateToken(u.getUsername());
+                // Lấy UserDetails để trích xuất vai trò
+                UserDetails userDetails = userDetailsService.loadUserByUsername(u.getUsername());
+                List<String> roles = userDetails.getAuthorities().stream()
+                        .map(authority -> authority.getAuthority())
+                        .collect(Collectors.toList());
+
+                // Tạo token với username và roles
+                String token = JwtUtils.generateToken(u.getUsername(), roles);
                 System.out.println("Login successful for username: " + u.getUsername());
                 return ResponseEntity.ok().body(Collections.singletonMap("token", token));
             } catch (Exception e) {
@@ -74,8 +83,8 @@ public class ApiUserController {
         }
         System.out.println("Login failed for username: " + u.getUsername());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
-
     }
+
 
     @GetMapping("/secure/profile")
     public ResponseEntity<?> getProfile(Principal principal) {
@@ -134,5 +143,14 @@ public class ApiUserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi tạo trợ lý sinh viên: " + e.getMessage());
         }
     }
+
+//    @GetMapping("/users/{userId}/hoat-dong")
+//    public ResponseEntity<List<HoatDongNgoaiKhoa>> getUserRegisteredOrAttendedActivities(@PathVariable(value = "userId") long userId) {
+//        User user = userDetailsService.getUserById(userId);
+//        if (user == null || user.getRole() != User.Role.SINH_VIEN) {
+//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        }
+//        return new ResponseEntity<>(hdnkService.findByUserRegisteredOrAttended(user), HttpStatus.OK);
+//    }
 
 }

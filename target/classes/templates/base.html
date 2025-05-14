@@ -1,32 +1,53 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
-    <head>
-        <title>Trang chủ</title>
-    <th:block th:fragment="bootstrap">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title th:text="${title} ?: 'Quan Ly Diem Ren Luyen CVCTSV'"></title>
+    <meta charset="UTF-8" />
+    <th:block th:fragment="styles">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
+            body {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+            .content {
+                flex: 1 0 auto;
+                padding: 20px;
+            }
+            footer {
+                flex-shrink: 0;
+                text-align: center;
+            }
+        </style>
     </th:block>
 </head>
 <body>
     <header th:fragment="header">
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">eCommerce's Admin</a>
+                <a class="navbar-brand" href="#">Quản lý điểm rèn luyện CVCTSV</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="collapsibleNavbar">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                            <a class="nav-link" th:href="@{/}" sec:authorize="isAuthenticated()">Trang chủ</a>
                         </li>
-                        <li class="nav-item" th:each="c: ${categories}" sec:authorize="isAuthenticated()">
-                            <a class="nav-link" th:href="@{'/?categoryId=' + ${c.id}}" th:text="${c.name}"></a>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/thongke}" sec:authorize="isAuthenticated()">Thống kê</a>
                         </li>
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
-                            <a class="nav-link" th:href="@{/logout}">Đăng xuất</a>
-                        </li>  
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/taotroly}" sec:authorize="isAuthenticated()">Tạo trợ lý</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" th:href="@{/logout}" sec:authorize="isAuthenticated()">Đăng xuất</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -34,11 +55,12 @@
     </header>
 
     <footer th:fragment="footer">
-        <div class="mt-4 p-5 bg-primary text-white rounded">
-            <h1>eCommerce App</h1>
-            <p>Duong Huu Thanh &copy; 2025</p>
+        <div sec:authorize="isAuthenticated()" class="mt-4 p-5 bg-primary text-white rounded">
+            <h1>Quản lý điểm rèn luyện CVCTSV</h1>
+            <p>Desmin © 2025</p>
         </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
-

@@ -1,12 +1,39 @@
 package com.desmin.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tham_gia")
-public class ThamGia {
+@NamedQueries({
+    @NamedQuery(
+        name = "ThamGia.getThamGiasChuaDiemDanhByDiemRenLuyenId",
+        query = "FROM ThamGia t WHERE t.sinhVien.id = (SELECT d.sinhVien.id FROM DiemRenLuyen d WHERE d.id = :drlId) " +
+                "AND t.hoatDongNgoaiKhoa.hkNh.id = (SELECT d.hkNh.id FROM DiemRenLuyen d WHERE d.id = :drlId) " +
+                "AND t.state = :state"
+    ),
+    @NamedQuery(
+        name = "ThamGia.findBySinhVienAndHoatDongNgoaiKhoa",
+        query = "SELECT t FROM ThamGia t WHERE t.sinhVien = :sinhVien AND t.hoatDongNgoaiKhoa = :hoatDong"
+    ),
+    @NamedQuery(
+        name = "ThamGia.findByHoatDongNgoaiKhoaId",
+        query = "SELECT t FROM ThamGia t WHERE t.hoatDongNgoaiKhoa.id = :hoatDongId"
+    ),
+    @NamedQuery(
+        name = "ThamGia.findBySinhVienId",
+        query = "SELECT t FROM ThamGia t WHERE t.sinhVien.id = :sinhVienId"
+    ),
+    @NamedQuery(
+        name = "ThamGia.findById",
+        query = "SELECT t FROM ThamGia t WHERE t.id = :id"
+    )
+})
+public class ThamGia implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +43,7 @@ public class ThamGia {
     @JoinColumn(name = "user_id", nullable = false)
     private User sinhVien;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "hoat_dong_id", nullable = false)
     private HoatDongNgoaiKhoa hoatDongNgoaiKhoa;
@@ -27,11 +55,12 @@ public class ThamGia {
     public enum TrangThai {
         DangKy, DiemDanh, BaoThieu
     }
-
-    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
-
-    @Column(nullable = false)
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate = LocalDateTime.now();
 
     @PrePersist

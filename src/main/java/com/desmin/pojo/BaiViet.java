@@ -1,14 +1,20 @@
 package com.desmin.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "bai_viet")
-public class BaiViet {
+@NamedQueries({
+    @NamedQuery(name = "BaiViet.findAll", query = "SELECT b FROM BaiViet b"),
+    @NamedQuery(name = "BaiViet.findById", query = "SELECT b FROM BaiViet b WHERE b.id = :id"),
+    @NamedQuery(name = "BaiViet.findBaiVietByHoatDongId", query = "SELECT b FROM BaiViet b WHERE b.hoatDongNgoaiKhoa.id = :hoatDongId"),})
+public class BaiViet implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,17 +26,16 @@ public class BaiViet {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = true)
+    @Column(name = "image_url", nullable = true)
     private String imageUrl;
 
     @ManyToOne
-    @JoinColumn(name = "tro_ly_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User troLy;
 
-    @ManyToOne
-    @JoinColumn(name = "hoat_dong_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "hoat_dong_id", nullable = false, unique = true)
     private HoatDongNgoaiKhoa hoatDongNgoaiKhoa;
-
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "baiViet")
     @JsonIgnore
@@ -44,11 +49,17 @@ public class BaiViet {
     @Column(nullable = false)
     private boolean active = true;
 
-    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
 
-    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate = LocalDateTime.now();
+
+    @JsonIgnore
+    @Transient
+    private MultipartFile file;
 
     // Getters và Setters
     public Long getId() {
@@ -137,5 +148,19 @@ public class BaiViet {
 
     public void setLikeSet(Set<Like> likeSet) {
         this.likeSet = likeSet;
+    }
+
+    /**
+     * @return the file
+     */
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile(MultipartFile file) {
+        this.file = file;
     }
 }

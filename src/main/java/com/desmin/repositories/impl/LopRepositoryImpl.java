@@ -15,8 +15,10 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional
 public class LopRepositoryImpl implements LopRepository {
 
     @Autowired
@@ -47,7 +49,7 @@ public class LopRepositoryImpl implements LopRepository {
         return query.getResultList();    }
 
     @Override
-    public Lop getLopById(int id) {
+    public Lop getLopById(long id) {
         Session s = factory.getObject().getCurrentSession();
         return s.get(Lop.class, id);
     }

@@ -1,12 +1,25 @@
 package com.desmin.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "diem_ren_luyen")
-public class DiemRenLuyen {
+@Table(name = "diem_ren_luyen",uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "hk_nh_id"}))
+@NamedQueries({
+    @NamedQuery(
+        name = "DiemRenLuyen.findBySinhVienId",
+        query = "SELECT drl FROM DiemRenLuyen drl WHERE drl.sinhVien.id = :userId"
+    ),
+      @NamedQuery(
+        name = "DiemRenLuyen.findBySinhVienAndHkNh",
+        query = "SELECT drl FROM DiemRenLuyen drl WHERE drl.sinhVien = :sinhVien AND drl.hkNh = :hkNh"
+    )
+})
+public class DiemRenLuyen  implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,13 +33,14 @@ public class DiemRenLuyen {
     @JoinColumn(name = "hk_nh_id", nullable = false)
     private HocKyNamHoc hkNh;
 
-    @Column(nullable = false)
+    @Column(name ="diem_tong",nullable = false)
     private Integer diemTong;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name="xep_loai",nullable = false)
     private XepLoai xepLoai;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "diemRenLuyen", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiemRenLuyenChiTiet> chiTiet;
 
@@ -34,10 +48,12 @@ public class DiemRenLuyen {
     @Column(nullable = false)
     private boolean active = true;
 
-    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
-
-    @Column(nullable = false)
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate = LocalDateTime.now();
 
     public enum XepLoai {

@@ -1,10 +1,11 @@
 package com.desmin.pojo;
 
 import jakarta.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "dieu")
-public class Dieu {
+public class Dieu implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

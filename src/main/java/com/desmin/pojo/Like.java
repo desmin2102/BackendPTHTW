@@ -1,10 +1,11 @@
 package com.desmin.pojo;
 
 import jakarta.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "like_interaction", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "bai_viet_id"}))
-public class Like {
+public class Like implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

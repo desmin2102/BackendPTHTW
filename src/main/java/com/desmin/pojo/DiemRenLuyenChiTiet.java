@@ -1,10 +1,18 @@
 package com.desmin.pojo;
 
 import jakarta.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "diem_ren_luyen_chi_tiet")
-public class DiemRenLuyenChiTiet {
+@NamedQueries({
+    @NamedQuery(
+        name = "DiemRenLuyenChiTiet.findByDiemRenLuyenId",
+        query = "SELECT ct FROM DiemRenLuyenChiTiet ct WHERE ct.diemRenLuyen.id = :diemRenLuyenId"
+    ),
+       
+})
+public class DiemRenLuyenChiTiet  implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

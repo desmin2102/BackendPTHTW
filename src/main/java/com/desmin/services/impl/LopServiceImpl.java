@@ -18,12 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
  * @author ADMIN
  */
 @Service
+@Transactional
 public class LopServiceImpl implements LopService {
 
     @Autowired
     private LopRepository lopRepo;
 
-    @Transactional
     @Override
     public List<Lop> getLops(Map<String, String> params) {
         return this.lopRepo.getLops(params);

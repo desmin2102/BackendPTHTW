@@ -166,4 +166,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional
+    @Override
+    public User getUserById(long id) {
+        return this.userRepo.getUserById(id);
+    }
 }

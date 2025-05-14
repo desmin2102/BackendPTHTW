@@ -14,8 +14,10 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional
 public class KhoaRepositoryImpl implements KhoaRepository {
 
     @Autowired
@@ -47,7 +49,7 @@ public class KhoaRepositoryImpl implements KhoaRepository {
     }
 
     @Override
-    public Khoa getKhoaById(int id) {
+    public Khoa getKhoaById(long id) {
         Session s = factory.getObject().getCurrentSession();
         return s.get(Khoa.class, id);
     }

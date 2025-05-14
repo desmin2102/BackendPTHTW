@@ -6,6 +6,7 @@ package com.desmin.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.desmin.filters.JwtFilter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -52,18 +54,40 @@ public class SpringSecurityConfigs {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(c -> c.disable())
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class) // 💡 thêm dòng này
+
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/bai-viet/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/khoas", "api/lops").permitAll()
+                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/api/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/khoas", "api/lops", "api/baiviets", "api/baiviets/{id}", "api/hdnks").permitAll()
                 .requestMatchers("/api/auth/**", "/api/login", "/api/users").permitAll() // Thêm /api/login và /api/users
-                .requestMatchers(HttpMethod.POST, "/api/bai-viet/*/like").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api /diems/{userId}", "/api/drlcts/{drlId}").permitAll()// Chỉ SINH_VIEN truy cập
+                .requestMatchers("/api/users/{userId}/hoat-dong").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/secure/profile").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/bai-viet/*/comment").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/tlsv").hasRole("CVCTSV")
+                .requestMatchers(HttpMethod.POST, "/api/secure/hdnks").hasRole("TRO_LY_SINH_VIEN")
+                                        .requestMatchers(HttpMethod.POST, "/api/secure/dangkys").hasRole("SINH_VIEN")
+
+                .requestMatchers(HttpMethod.POST, "/api/secure/tlsv").hasRole("CVCTSV")
+                .requestMatchers(HttpMethod.POST, "/api/secure/cvctsv").hasRole("CVCTSV")
                 .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
-                .anyRequest().permitAll()
+                .anyRequest().authenticated())
+                .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .successHandler((request, response, authentication) -> {
+                    if (authentication.getAuthorities().stream()
+                            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CVCTSV"))) {
+                        response.sendRedirect("/QuanLyDiemRenLuyen/"); // Chuyển hướng với context path
+                    } else {
+                        throw new IllegalStateException("Chỉ tài khoản CVCTSV được phép đăng nhập");
+                    }
+                })
+                )
+                .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
                 );
+
         return http.build();
     }
 

@@ -18,18 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
  * @author ADMIN
  */
 @Service
+@Transactional
 public class KhoaServiceImpl implements KhoaService{
 
     @Autowired
     private KhoaRepository khoaRepo;
     
-    @Transactional
     @Override
     public List<Khoa> getKhoas(Map<String, String> params) {
         return this.khoaRepo.getKhoas(params);
     }
 
-    @Transactional
+    
     @Override
     public Khoa getKhoaById(int id) {
         return this.khoaRepo.getKhoaById(id);

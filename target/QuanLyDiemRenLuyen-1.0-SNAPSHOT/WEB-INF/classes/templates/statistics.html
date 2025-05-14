@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title th:replace="~{base :: title('Statistics')}"></title>
+</head>
+<body>
+    <div th:replace="~{base :: content}">
+        <h2>Statistics</h2>
+        <p>Welcome, <span th:text="${username}"></span>!</p>
+        <p>Statistics for CVCTSV (sample data):</p>
+        <ul>
+            <li th:each="stat : ${stats}" th:text="${stat}"></li>
+        </ul>
+    </div>
+</body>
+</html>

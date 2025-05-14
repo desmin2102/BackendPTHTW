@@ -17,5 +17,5 @@ public interface LopRepository {
 
     List<Lop> getLops(Map<String, String> params);
 
-    Lop getLopById(int id);
+    Lop getLopById(long id);
 }
