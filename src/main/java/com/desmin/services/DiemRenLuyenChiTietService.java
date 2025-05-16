@@ -13,8 +13,9 @@ import java.util.Map;
  * @author ADMIN
  */
 public interface DiemRenLuyenChiTietService {
-     List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTiets(Map<String, String> params);
+       // Lấy danh sách chi tiết điểm rèn luyện theo diemRenLuyenId
+    List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTietByDiemRenLuyenId(Long diemRenLuyenId, Map<String, String> params);
 
-    List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTietByDiemRenLuyenId(long drlId, Map<String, String> params);
-    
+    // Lưu hoặc cập nhật chi tiết điểm rèn luyện
+    void saveDiemRenLuyenChiTiet(DiemRenLuyenChiTiet chiTiet);
 }

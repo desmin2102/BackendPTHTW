@@ -4,6 +4,7 @@
  */
 package com.desmin.repositories;
 
+import com.desmin.pojo.DiemRenLuyen;
 import com.desmin.pojo.DiemRenLuyenChiTiet;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +15,12 @@ import java.util.Map;
  */
 public interface DiemRenLuyenChiTietRepository {
     
-     List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTiets(Map<String, String> params);
+    // Lấy danh sách chi tiết điểm rèn luyện theo diemRenLuyenId
+    List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTietByDiemRenLuyenId(Long diemRenLuyenId, Map<String, String> params);
 
-    List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTietByDiemRenLuyenId(long drlId, Map<String, String> params);
-    
+    // Lưu hoặc cập nhật chi tiết điểm rèn luyện
     void saveDiemRenLuyenChiTiet(DiemRenLuyenChiTiet chiTiet);
+        void createDiemRenLuyenChiTietForAllDieu(DiemRenLuyen diemRenLuyen);
+
     
 }

@@ -5,6 +5,7 @@
 package com.desmin.repositories;
 
 import com.desmin.pojo.HocKyNamHoc;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -15,4 +16,10 @@ import java.util.Map;
 public interface HocKyNamHocRepository {
       List<HocKyNamHoc> getHocKyNamHocs(Map<String, String> params);
     HocKyNamHoc getHocKyNamHocById(long id);
+        HocKyNamHoc findCurrentHocKyNamHoc();
+    void createHocKyNamHoc(HocKyNamHoc hocKyNamHoc);
+    boolean existsByHocKyAndNamHoc(HocKyNamHoc.HocKy hocKy, String namHoc);
+        List<HocKyNamHoc> findOverlappingHocKyNamHoc(LocalDate startDate, LocalDate endDate);
+
+
 }

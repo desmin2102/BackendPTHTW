@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -92,29 +94,80 @@ public class ApiThamGiaController {
         }
     }
     
-    @PostMapping(path = "/diem-danh/csv", consumes = "multipart/form-data")
-public ResponseEntity<?> diemDanhByCsv(@RequestParam("hoatDongId") Long hoatDongId,
-                                      @RequestParam("file") MultipartFile file) {
-    try {
-        if (hoatDongId == null) {
-            return ResponseEntity.badRequest().body("Thiếu tham số hoatDongId");
+    @PostMapping("/diem-danh-csv/{hoatDongId}")
+    public ResponseEntity<?> diemDanhByCsv(@PathVariable("hoatDongId") Long hoatDongId,
+                                          @RequestParam("file") MultipartFile file) {
+        try {
+            thamGiaService.diemDanhByCsv(hoatDongId, file);
+            return ResponseEntity.ok(new HashMap<String, String>() {{
+                put("message", "Điểm danh và cộng điểm thành công!");
+            }});
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Lỗi khi điểm danh: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Lỗi khi xử lý file CSV: " + e.getMessage());
         }
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body("Thiếu file CSV");
-        }
-
-        thamGiaService.diemDanhByCsv(hoatDongId, file);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Điểm danh bằng CSV thành công");
-        return ResponseEntity.ok(response);
-
-    } catch (IllegalStateException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Lỗi khi điểm danh bằng CSV: " + e.getMessage());
     }
-}
+
+    
+    @PostMapping("/diem-danh")
+    public ResponseEntity<?> diemDanhHoatDong(@RequestParam Long sinhVienId, @RequestParam Long hoatDongId) {
+        try {
+            User sinhVien = userService.getUserById(sinhVienId);
+            if (sinhVien == null) {
+                return ResponseEntity.badRequest().body("Sinh viên không tồn tại");
+            }
+            HoatDongNgoaiKhoa hoatDong = hoatDongNgoaiKhoaService.getHoatDongNgoaiKhoaById(hoatDongId);
+            if (hoatDong == null) {
+                return ResponseEntity.badRequest().body("Hoạt động không tồn tại");
+            }
+            thamGiaService.diemDanhHoatDong(sinhVien, hoatDong);
+            return ResponseEntity.ok("Điểm danh và cộng điểm thành công!");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Lỗi khi điểm danh: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/export-csv/{hoatDongId}")
+    public ResponseEntity<byte[]> exportThamGiaToCsv(@PathVariable("hoatDongId") Long hoatDongId) {
+        try {
+            byte[] csvBytes = thamGiaService.exportThamGiaToCsv(hoatDongId);
+
+            HttpHeaders headers = new HttpHeaders();
+            String fileName = "tham_gia_hoat_dong_" + hoatDongId + ".csv";
+            headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+            headers.setContentLength(csvBytes.length);
+
+            return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage().getBytes());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Lỗi khi xuất file CSV: " + e.getMessage()).getBytes());
+        }
+    }
+
+     @GetMapping("/tham-gia/{sinhVienId}")
+    public ResponseEntity<?> getThamGiaBySinhVien(
+            @PathVariable("sinhVienId") Long sinhVienId,
+            @RequestParam Map<String, String> params) {
+        try {
+            if (sinhVienId == null) {
+                return ResponseEntity.badRequest().body("Thiếu tham số sinhVienId");
+            }
+
+            List<ThamGia> thamGias = thamGiaService.getThamGiaBySinhVienWithStates(sinhVienId, params);
+            return new ResponseEntity<>(thamGias, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi lấy danh sách tham gia: " + e.getMessage());
+        }
+    }
     
 }

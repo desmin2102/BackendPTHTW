@@ -19,9 +19,14 @@ import java.util.List;
             query = "SELECT h FROM HoatDongNgoaiKhoa h WHERE h.id = :id"),
     @NamedQuery(name = "HoatDongNgoaiKhoa.findByUserParticipated",
             query = "SELECT t.hoatDongNgoaiKhoa FROM ThamGia t WHERE t.sinhVien = :user"),
-     @NamedQuery(name = "HoatDongNgoaiKhoa.findByUserRegisteredOrAttended",
-            query = "SELECT t.hoatDongNgoaiKhoa FROM ThamGia t WHERE t.sinhVien = :user AND t.state IN ('DangKy', 'DiemDanh')")
-       
+    @NamedQuery(
+    name = "HoatDongNgoaiKhoa.findByUserRegistered",
+    query = "SELECT t.hoatDongNgoaiKhoa FROM ThamGia t WHERE t.sinhVien.id = :userId AND t.state IN ('DangKy')"
+),
+    @NamedQuery(
+    name = "HoatDongNgoaiKhoa.findByUserAttended",
+    query = "SELECT t.hoatDongNgoaiKhoa FROM ThamGia t WHERE t.sinhVien.id = :userId AND t.state IN ('DiemDanh')"
+)
 })
 public class HoatDongNgoaiKhoa implements Serializable {
 

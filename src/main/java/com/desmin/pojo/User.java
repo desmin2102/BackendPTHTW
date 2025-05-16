@@ -3,6 +3,7 @@ package com.desmin.pojo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ import java.util.Set;
     @NamedQuery(name = "User.findByActive", query = "SELECT u FROM User u WHERE u.active = :active"),
     @NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role = :role"),
     @NamedQuery(name = "User.findByAvatarUrl", query = "SELECT u FROM User u WHERE u.avatarUrl = :avatarUrl")})
-public class User implements Serializable{
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,6 +81,10 @@ public class User implements Serializable{
     @JsonIgnore
     private Set<Like> likeSet;
 
+    @OneToMany(mappedBy = "sinhVien", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<DiemRenLuyen> diemRenLuyenList;
+
     @JsonIgnore
     @Transient
     private MultipartFile file;
@@ -96,7 +101,7 @@ public class User implements Serializable{
                 throw new IllegalStateException("Thông tin sinh viên không đầy đủ");
             }
             if (!email.endsWith("@ou.edu.vn")) {
-    throw new IllegalStateException("Email phải thuộc domain @ou.edu.vn");
+                throw new IllegalStateException("Email phải thuộc domain @ou.edu.vn");
             }
             if (!username.equals(email)) {
                 throw new IllegalStateException("Username phải giống email cho sinh viên");
@@ -108,7 +113,7 @@ public class User implements Serializable{
             if (khoaPhuTrach == null) {
                 throw new IllegalStateException("Trợ lý sinh viên phải có khoa phụ trách");
             }
-            if (lop != null || mssv != null ) {
+            if (lop != null || mssv != null) {
                 throw new IllegalStateException("Trợ lý sinh viên không được có thông tin sinh viên");
             }
         } else {
@@ -242,5 +247,19 @@ public class User implements Serializable{
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    /**
+     * @return the diemRenLuyenList
+     */
+    public List<DiemRenLuyen> getDiemRenLuyenList() {
+        return diemRenLuyenList;
+    }
+
+    /**
+     * @param diemRenLuyenList the diemRenLuyenList to set
+     */
+    public void setDiemRenLuyenList(List<DiemRenLuyen> diemRenLuyenList) {
+        this.diemRenLuyenList = diemRenLuyenList;
     }
 }

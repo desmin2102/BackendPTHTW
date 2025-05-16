@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 public interface DiemRenLuyenService {
-
+    // Lấy danh sách điểm rèn luyện theo tham số
     List<DiemRenLuyen> getDiemRenLuyens(Map<String, String> params);
 
+    // Lấy danh sách điểm rèn luyện theo sinh viên
     List<DiemRenLuyen> getDiemRenLuyenBySinhVienId(long userId, Map<String, String> params);
-    
+
+    // Cộng điểm rèn luyện cho sinh viên
     void congDiemRenLuyen(User sinhVien, HoatDongNgoaiKhoa hoatDong);
 }

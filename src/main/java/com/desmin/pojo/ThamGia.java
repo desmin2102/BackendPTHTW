@@ -31,6 +31,10 @@ import java.time.LocalDateTime;
     @NamedQuery(
         name = "ThamGia.findById",
         query = "SELECT t FROM ThamGia t WHERE t.id = :id"
+    ),
+    @NamedQuery(
+        name = "ThamGia.findBySinhVienIdAndState",
+        query = "SELECT t FROM ThamGia t JOIN FETCH t.hoatDongNgoaiKhoa h JOIN FETCH h.dieu WHERE t.sinhVien.id = :sinhVienId AND t.state IN ('DangKy', 'DiemDanh')"
     )
 })
 public class ThamGia implements Serializable {
@@ -43,7 +47,6 @@ public class ThamGia implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User sinhVien;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "hoat_dong_id", nullable = false)
     private HoatDongNgoaiKhoa hoatDongNgoaiKhoa;
@@ -63,6 +66,11 @@ public class ThamGia implements Serializable {
     @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate = LocalDateTime.now();
 
+     @OneToOne(mappedBy = "thamGia", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private MinhChung minhChung;
+
+    
     @PrePersist
     @PreUpdate
     public void validate() {
@@ -121,5 +129,19 @@ public class ThamGia implements Serializable {
 
     public void setUpdatedDate(LocalDateTime updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    /**
+     * @return the minhChung
+     */
+    public MinhChung getMinhChung() {
+        return minhChung;
+    }
+
+    /**
+     * @param minhChung the minhChung to set
+     */
+    public void setMinhChung(MinhChung minhChung) {
+        this.minhChung = minhChung;
     }
 }

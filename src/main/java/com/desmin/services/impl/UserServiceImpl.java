@@ -6,10 +6,14 @@ package com.desmin.services.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.desmin.pojo.HocKyNamHoc;
 import com.desmin.pojo.Khoa;
 import com.desmin.pojo.Lop;
 import com.desmin.pojo.User;
 import com.desmin.pojo.User.Role;
+import com.desmin.repositories.DiemRenLuyenChiTietRepository;
+import com.desmin.repositories.DiemRenLuyenRepository;
+import com.desmin.repositories.HocKyNamHocRepository;
 import com.desmin.repositories.UserRepository;
 import com.desmin.services.UserService;
 import java.io.IOException;
@@ -37,6 +41,16 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private HocKyNamHocRepository hocKyNamHocRepository;
+
+    @Autowired
+    private DiemRenLuyenRepository diemRenLuyenRepository;
+
+    @Autowired
+    private DiemRenLuyenChiTietRepository diemChiTietRepository;
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
@@ -92,7 +106,16 @@ public class UserServiceImpl implements UserService {
                 Logger.getLogger(UserServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return this.userRepo.addUser(u);
+        this.userRepo.addUser(u);
+        // Tạo DiemRenLuyen và DiemRenLuyenChiTiet cho học kỳ hiện tại
+        HocKyNamHoc hkNh = hocKyNamHocRepository.findCurrentHocKyNamHoc();
+        if (hkNh != null) {
+            diemRenLuyenRepository.createDiemRenLuyen(u, hkNh);
+            diemChiTietRepository.createDiemRenLuyenChiTietForAllDieu(
+                    diemRenLuyenRepository.findBySinhVienAndHkNh(u, hkNh)
+            );
+        }
+        return u;
     }
 
     @Override

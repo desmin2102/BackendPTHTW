@@ -7,6 +7,21 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "minh_chung")
+@NamedQueries({
+    @NamedQuery(
+        name = "MinhChung.findByTrangThai",
+        query = "SELECT m FROM MinhChung m WHERE m.trangThai = :trangThai AND m.active = true"
+    ),
+    @NamedQuery(
+        name = "MinhChung.findByTrangThaiAndKhoa",
+        query = "SELECT m FROM MinhChung m JOIN m.thamGia t JOIN t.sinhVien sv JOIN sv.lop l JOIN l.khoa k " +
+                "WHERE m.trangThai = :trangThai AND m.active = true AND k.id = :khoaId"
+    ),
+    @NamedQuery(
+        name = "MinhChung.findById",
+        query = "SELECT m FROM MinhChung m WHERE m.id = :id"
+    )
+})
 public class MinhChung implements Serializable{
 
     @Id
@@ -16,15 +31,15 @@ public class MinhChung implements Serializable{
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(nullable = false)
+    @Column(name="anh_minh_chung",nullable = false)
     private String anhMinhChung;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "tham_gia_id", nullable = false)
     private ThamGia thamGia;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(name="trang_thai")
     private TrangThai trangThai = TrangThai.CHO_DUYET;
 
     public enum TrangThai {

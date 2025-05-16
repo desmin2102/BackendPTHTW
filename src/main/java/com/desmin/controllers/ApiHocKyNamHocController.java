@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,5 +40,15 @@ public class ApiHocKyNamHocController {
     @GetMapping("/hknhs/{hknhId}")
     public ResponseEntity<HocKyNamHoc> retrieve(@PathVariable(value = "hknhId") int id) {
         return new ResponseEntity<>(this.hknhService.getHocKyNamHocById(id), HttpStatus.OK);
+    }
+    
+     @PostMapping("/create")
+    public ResponseEntity<String> createHocKyNamHoc(@RequestBody HocKyNamHoc hocKyNamHoc) {
+        try {
+            hknhService.createHocKyNamHoc(hocKyNamHoc);
+            return ResponseEntity.ok("Tạo học kỳ năm học thành công!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

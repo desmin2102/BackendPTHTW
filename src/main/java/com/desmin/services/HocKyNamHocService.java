@@ -17,4 +17,6 @@ public interface HocKyNamHocService {
     List<HocKyNamHoc> getHocKyNamHocs(Map<String, String> params);
 
     HocKyNamHoc getHocKyNamHocById(long id);
+        void createHocKyNamHoc(HocKyNamHoc hocKyNamHoc);
+
 }

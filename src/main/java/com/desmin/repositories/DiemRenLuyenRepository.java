@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.desmin.repositories;
 
 import com.desmin.pojo.DiemRenLuyen;
@@ -11,16 +7,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
- * @author ADMIN
+ * Giao diện repository cho DiemRenLuyen.
  */
 public interface DiemRenLuyenRepository {
 
+    // Lấy danh sách điểm rèn luyện theo tham số
     List<DiemRenLuyen> getDiemRenLuyens(Map<String, String> params);
 
+    // Lấy danh sách điểm rèn luyện theo sinh viên
     List<DiemRenLuyen> getDiemRenLuyenBySinhVienId(long userId, Map<String, String> params);
 
-    void saveDiemRenLuyen(DiemRenLuyen diemRenLuyen);
-
+    // Tìm điểm rèn luyện theo sinh viên và học kỳ năm học
     DiemRenLuyen findBySinhVienAndHkNh(User sinhVien, HocKyNamHoc hkNh);
+
+    // Lưu hoặc cập nhật điểm rèn luyện
+    void saveDiemRenLuyen(DiemRenLuyen diemRenLuyen);
+        DiemRenLuyen createDiemRenLuyen(User sinhVien, HocKyNamHoc hkNh);
+
 }

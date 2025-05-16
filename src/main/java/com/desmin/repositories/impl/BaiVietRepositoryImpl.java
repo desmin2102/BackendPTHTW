@@ -5,7 +5,6 @@
 package com.desmin.repositories.impl;
 
 import com.desmin.pojo.BaiViet;
-import com.desmin.pojo.Khoa;
 import com.desmin.repositories.BaiVietRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -27,13 +26,42 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BaiVietRepositoryImpl implements BaiVietRepository {
 
+    private static final int PAGE_SIZE = 6;
+
     @Autowired
     private LocalSessionFactoryBean factory;
 
     @Override
-    public List<BaiViet> getAllBaiViet() {
-        Session session = factory.getObject().getCurrentSession();
-        Query query = session.createNamedQuery("BaiViet.findAll", BaiViet.class);
+    public List<BaiViet> getAllBaiViet(Map<String, String> params) {
+        Session s = factory.getObject().getCurrentSession();
+        CriteriaBuilder b = s.getCriteriaBuilder();
+        CriteriaQuery<BaiViet> q = b.createQuery(BaiViet.class);
+        Root<BaiViet> root = q.from(BaiViet.class);
+        q.select(root);
+
+        Query query = s.createQuery(q);
+
+        // Áp dụng phân trang
+        if (params != null && params.containsKey("page")) {
+            try {
+                int page = Integer.parseInt(params.getOrDefault("page", "1"));
+                if (page < 1) {
+                    page = 1; // Đảm bảo page không nhỏ hơn 1
+                }
+                int start = (page - 1) * PAGE_SIZE;
+                query.setMaxResults(PAGE_SIZE);
+                query.setFirstResult(start);
+            } catch (NumberFormatException e) {
+                // Nếu page không phải số hợp lệ, lấy trang 1
+                query.setMaxResults(PAGE_SIZE);
+                query.setFirstResult(0);
+            }
+        } else {
+            // Mặc định lấy trang 1 nếu không có tham số page
+            query.setMaxResults(PAGE_SIZE);
+            query.setFirstResult(0);
+        }
+
         return query.getResultList();
     }
 
@@ -46,7 +74,7 @@ public class BaiVietRepositoryImpl implements BaiVietRepository {
     @Override
     public BaiViet addBaiViet(BaiViet baiViet) {
         Session session = factory.getObject().getCurrentSession();
-       session.persist(baiViet);
+        session.persist(baiViet);
 
         return baiViet;
     }
@@ -74,6 +102,6 @@ public class BaiVietRepositoryImpl implements BaiVietRepository {
         Query query = session.createNamedQuery("BaiViet.findBaiVietByHoatDongId", BaiViet.class);
         query.setParameter("hoatDongId", hoatDongId);
         return (BaiViet) query.getSingleResult();
-        
+
     }
 }

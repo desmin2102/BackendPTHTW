@@ -23,6 +23,5 @@ public interface HoatDongNgoaiKhoaRepository {
     List<HoatDongNgoaiKhoa> findByHanDangKyBefore(LocalDate date);
     List<HoatDongNgoaiKhoa> findActiveAndNotExpired(LocalDate date);
     void update(HoatDongNgoaiKhoa hoatDong);
-    List<HoatDongNgoaiKhoa> findByUserParticipated(User user);
-    List<HoatDongNgoaiKhoa> findByUserRegisteredOrAttended(User user); // Thêm
+  
 }

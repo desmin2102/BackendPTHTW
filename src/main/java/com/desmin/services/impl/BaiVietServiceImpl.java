@@ -43,8 +43,8 @@ public class BaiVietServiceImpl implements BaiVietService {
     private Cloudinary cloudinary;
 
     @Override
-    public List<BaiViet> getAllBaiViet() {
-        return this.baiVietRepo.getAllBaiViet();
+    public List<BaiViet> getAllBaiViet(Map<String, String> params) {
+        return baiVietRepo.getAllBaiViet(params);
     }
 
     @Override

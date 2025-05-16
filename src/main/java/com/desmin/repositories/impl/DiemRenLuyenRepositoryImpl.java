@@ -1,19 +1,24 @@
-package com.desmin.repositories;
+package com.desmin.repositories.impl;
 
 import com.desmin.pojo.DiemRenLuyen;
 import com.desmin.pojo.HocKyNamHoc;
 import com.desmin.pojo.User;
+import com.desmin.repositories.DiemRenLuyenRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.time.LocalDateTime;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
@@ -30,34 +35,26 @@ public class DiemRenLuyenRepositoryImpl implements DiemRenLuyenRepository {
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<DiemRenLuyen> query = builder.createQuery(DiemRenLuyen.class);
         Root<DiemRenLuyen> root = query.from(DiemRenLuyen.class);
-
-        // Join với HocKyNamHoc để lọc namHoc, hocKy
-        Join<DiemRenLuyen, HocKyNamHoc> hkNhJoin = root.join("hkNh");
-
         query.select(root);
 
         if (params != null) {
             List<Predicate> predicates = new ArrayList<>();
 
-            String namHoc = params.get("namHoc");
-            if (namHoc != null && !namHoc.isEmpty()) {
-                predicates.add(builder.equal(hkNhJoin.get("namHoc"), namHoc));
+            String xepLoai = params.get("xepLoai");
+            if (xepLoai != null && !xepLoai.isEmpty()) {
+                predicates.add(builder.equal(root.get("xepLoai"), DiemRenLuyen.XepLoai.valueOf(xepLoai)));
             }
 
-            String hocKy = params.get("hocKy");
-            if (hocKy != null && !hocKy.isEmpty()) {
-                predicates.add(builder.equal(hkNhJoin.get("hocKy"), hocKy));
+            String hkNhId = params.get("hkNhId");
+            if (hkNhId != null && !hkNhId.isEmpty()) {
+                predicates.add(builder.equal(root.get("hkNh").get("id"), Long.parseLong(hkNhId)));
             }
 
             query.where(predicates.toArray(new Predicate[0]));
         }
 
-        // Sắp xếp theo startDate của HocKyNamHoc (mới nhất trước)
-        query.orderBy(builder.desc(hkNhJoin.get("startDate")));
-
         Query<DiemRenLuyen> q = session.createQuery(query);
 
-        // Phân trang
         if (params != null && params.containsKey("page")) {
             int page = Integer.parseInt(params.getOrDefault("page", "1"));
             int start = (page - 1) * PAGE_SIZE;
@@ -71,47 +68,27 @@ public class DiemRenLuyenRepositoryImpl implements DiemRenLuyenRepository {
     @Override
     public List<DiemRenLuyen> getDiemRenLuyenBySinhVienId(long userId, Map<String, String> params) {
         Session session = factory.getObject().getCurrentSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<DiemRenLuyen> query = builder.createQuery(DiemRenLuyen.class);
-        Root<DiemRenLuyen> root = query.from(DiemRenLuyen.class);
+        Query<DiemRenLuyen> query = session.createNamedQuery("DiemRenLuyen.findBySinhVienId", DiemRenLuyen.class);
+        query.setParameter("userId", userId);
 
-        // Join với HocKyNamHoc để lọc namHoc, hocKy
-        Join<DiemRenLuyen, HocKyNamHoc> hkNhJoin = root.join("hkNh");
-
-        query.select(root);
-
-        List<Predicate> predicates = new ArrayList<>();
-        // Lọc theo userId
-        predicates.add(builder.equal(root.get("sinhVien").get("id"), userId));
-
-        if (params != null) {
-            String namHoc = params.get("namHoc");
-            if (namHoc != null && !namHoc.isEmpty()) {
-                predicates.add(builder.equal(hkNhJoin.get("namHoc"), namHoc));
-            }
-
-            String hocKy = params.get("hocKy");
-            if (hocKy != null && !hocKy.isEmpty()) {
-                predicates.add(builder.equal(hkNhJoin.get("hocKy"), hocKy));
-            }
-        }
-
-        query.where(predicates.toArray(new Predicate[0]));
-
-        // Sắp xếp theo startDate của HocKyNamHoc (mới nhất trước)
-        query.orderBy(builder.desc(hkNhJoin.get("startDate")));
-
-        Query<DiemRenLuyen> q = session.createQuery(query);
-
-        // Phân trang
         if (params != null && params.containsKey("page")) {
             int page = Integer.parseInt(params.getOrDefault("page", "1"));
             int start = (page - 1) * PAGE_SIZE;
-            q.setFirstResult(start);
-            q.setMaxResults(PAGE_SIZE);
+            query.setFirstResult(start);
+            query.setMaxResults(PAGE_SIZE);
         }
 
-        return q.getResultList();
+        return query.getResultList();
+    }
+
+    @Override
+    public DiemRenLuyen findBySinhVienAndHkNh(User sinhVien, HocKyNamHoc hkNh) {
+        Session session = factory.getObject().getCurrentSession();
+        Query<DiemRenLuyen> query = session.createNamedQuery("DiemRenLuyen.findBySinhVienAndHkNh", DiemRenLuyen.class);
+        query.setParameter("sinhVien", sinhVien);
+        query.setParameter("hkNh", hkNh);
+        List<DiemRenLuyen> results = query.getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
 
     @Override
@@ -120,15 +97,30 @@ public class DiemRenLuyenRepositoryImpl implements DiemRenLuyenRepository {
         session.merge(diemRenLuyen);
         session.flush();
     }
-    
-    @Override
-    /** Bổ sung: Triển khai findBySinhVienAndHkNh */
-    public DiemRenLuyen findBySinhVienAndHkNh(User sinhVien, HocKyNamHoc hkNh) {
-        Session session = factory.getObject().getCurrentSession();
-        Query query = session.createNamedQuery("DiemRenLuyen.findBySinhVienAndHkNh", DiemRenLuyen.class);
-        query.setParameter("sinhVien", sinhVien);
-        query.setParameter("hkNh", hkNh);
-        List<DiemRenLuyen> results = query.getResultList();
-        return results.isEmpty() ? null : results.get(0);
+@Override
+public DiemRenLuyen createDiemRenLuyen(User sinhVien, HocKyNamHoc hkNh) {
+    Session s = factory.getObject().getCurrentSession();
+    DiemRenLuyen diemRenLuyen = findBySinhVienAndHkNh(sinhVien, hkNh);
+
+    if (diemRenLuyen == null) {
+        diemRenLuyen = new DiemRenLuyen();
+        diemRenLuyen.setSinhVien(sinhVien);
+        diemRenLuyen.setHkNh(hkNh);
+        diemRenLuyen.setDiemTong(0);
+        diemRenLuyen.setActive(true);
+        diemRenLuyen.setCreatedDate(LocalDateTime.now());
+        diemRenLuyen.setUpdatedDate(LocalDateTime.now());
+
+        // Đồng bộ quan hệ hai chiều
+        if (sinhVien.getDiemRenLuyenList() == null) {
+            sinhVien.setDiemRenLuyenList(new ArrayList<>());
+        }
+        sinhVien.getDiemRenLuyenList().add(diemRenLuyen);
+
+        s.persist(diemRenLuyen);
     }
+
+    return diemRenLuyen;
+}
+
 }

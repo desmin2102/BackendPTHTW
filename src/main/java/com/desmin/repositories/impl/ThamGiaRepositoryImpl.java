@@ -28,8 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional
 public class ThamGiaRepositoryImpl implements ThamGiaRepository {
 
-    
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 5;
     @Autowired
     private UserRepository userRepository;
 
@@ -158,7 +157,7 @@ public class ThamGiaRepositoryImpl implements ThamGiaRepository {
         saveThamGia(thamGia);
     }
 
- @Override
+    @Override
     public void diemDanhByCsv(HoatDongNgoaiKhoa hoatDong, MultipartFile file) {
         Session session = factory.getObject().getCurrentSession();
         List<String> errors = new ArrayList<>();
@@ -229,5 +228,54 @@ public class ThamGiaRepositoryImpl implements ThamGiaRepository {
             throw new RuntimeException("Lỗi khi xử lý file CSV: " + e.getMessage());
         }
     }
+
     
+
+    @Override
+    public ThamGia getThamGiaById(long id) {
+        Session s = factory.getObject().getCurrentSession();
+        return s.get(ThamGia.class, id);
+    }
+    
+    
+    @Override
+    public List<ThamGia> getThamGiaBySinhVienWithStates(long sinhVienId, List<ThamGia.TrangThai> states, Map<String, String> params) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<ThamGia> query = builder.createQuery(ThamGia.class);
+        Root<ThamGia> root = query.from(ThamGia.class);
+        query.select(root);
+
+        // Xây dựng điều kiện WHERE
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(root.get("sinhVien").get("id"), sinhVienId));
+        predicates.add(builder.in(root.get("state")).value(states));
+        query.where(predicates.toArray(new Predicate[0]));
+
+        // Tạo query
+        Query<ThamGia> q = session.createQuery(query);
+
+        // Áp dụng phân trang
+        if (params != null && params.containsKey("page")) {
+            try {
+                int page = Integer.parseInt(params.getOrDefault("page", "1"));
+                if (page < 1) {
+                    page = 1; // Đảm bảo page không nhỏ hơn 1
+                }
+                int start = (page - 1) * PAGE_SIZE;
+                q.setMaxResults(PAGE_SIZE);
+                q.setFirstResult(start);
+            } catch (NumberFormatException e) {
+                // Nếu page không phải số hợp lệ, lấy trang 1
+                q.setMaxResults(PAGE_SIZE);
+                q.setFirstResult(0);
+            }
+        } else {
+            // Mặc định lấy trang 1 nếu không có tham số page
+            q.setMaxResults(PAGE_SIZE);
+            q.setFirstResult(0);
+        }
+
+        return q.getResultList();
+    }
 }

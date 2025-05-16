@@ -3,6 +3,8 @@ package com.desmin.services;
 import com.desmin.pojo.HoatDongNgoaiKhoa;
 import com.desmin.pojo.ThamGia;
 import com.desmin.pojo.User;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,5 +32,13 @@ public interface ThamGiaService {
     // Đăng ký hoạt động ngoại khóa
     void dangKyHoatDong(User sinhVien, HoatDongNgoaiKhoa hoatDong);
 
-void diemDanhByCsv(Long hoatDongId, MultipartFile file); // Thêm phương thức điểm danh bằng CSV    
+    void diemDanhHoatDong(User sinhVien, HoatDongNgoaiKhoa hoatDong);
+
+    void diemDanhByCsv(Long hoatDongId, MultipartFile file); // Thêm phương thức điểm danh bằng CSV    
+
+    byte[] exportThamGiaToCsv(long hoatDongId); // Phương thức mới
+
+    List<ThamGia> getThamGiaBySinhVienWithStates(long sinhVienId, Map<String, String> params);
+
+    ThamGia getThamGiaById(long id);
 }

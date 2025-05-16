@@ -5,6 +5,7 @@
 package com.desmin.repositories;
 
 import com.desmin.pojo.User;
+import java.util.List;
 
 /**
  *
@@ -19,5 +20,7 @@ public interface UserRepository {
     boolean authenticate(String username, String password);
 
     User getUserById(long id);
+
+    List<User> findAllSinhVien();
 
 }

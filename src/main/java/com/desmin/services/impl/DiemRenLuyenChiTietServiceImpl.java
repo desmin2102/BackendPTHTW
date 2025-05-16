@@ -21,18 +21,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DiemRenLuyenChiTietServiceImpl implements DiemRenLuyenChiTietService{
     
+   
     @Autowired
-    private DiemRenLuyenChiTietRepository drlctRepo;
+    private DiemRenLuyenChiTietRepository diemChiTietRepository;
 
     @Override
-    public List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTiets(Map<String, String> params) {
-        return drlctRepo.getDiemRenLuyenChiTiets(params);
+    public List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTietByDiemRenLuyenId(Long diemRenLuyenId, Map<String, String> params) {
+        return diemChiTietRepository.getDiemRenLuyenChiTietByDiemRenLuyenId(diemRenLuyenId, params);
     }
 
     @Override
-    public List<DiemRenLuyenChiTiet> getDiemRenLuyenChiTietByDiemRenLuyenId(long drlId, Map<String, String> params) {
-        return drlctRepo.getDiemRenLuyenChiTietByDiemRenLuyenId(drlId, params);
+    public void saveDiemRenLuyenChiTiet(DiemRenLuyenChiTiet chiTiet) {
+        diemChiTietRepository.saveDiemRenLuyenChiTiet(chiTiet);
     }
-    
-    
+
 }

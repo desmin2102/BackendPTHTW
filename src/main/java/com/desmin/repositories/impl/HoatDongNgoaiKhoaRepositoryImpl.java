@@ -97,13 +97,7 @@ public class HoatDongNgoaiKhoaRepositoryImpl implements HoatDongNgoaiKhoaReposit
         session.flush();
     }
 
-    @Override
-    public List<HoatDongNgoaiKhoa> findByUserParticipated(User user) {
-        Session session = factory.getObject().getCurrentSession();
-        Query query = session.createNamedQuery("HoatDongNgoaiKhoa.findByUserParticipated", HoatDongNgoaiKhoa.class);
-        query.setParameter("user", user);
-        return query.getResultList();
-    }
+   
 
     @Override
     public HoatDongNgoaiKhoa addHoatDongNgoaiKhoa(HoatDongNgoaiKhoa h) {
@@ -113,12 +107,5 @@ public class HoatDongNgoaiKhoaRepositoryImpl implements HoatDongNgoaiKhoaReposit
         return h;
     }
 
-    @Override
-    public List<HoatDongNgoaiKhoa> findByUserRegisteredOrAttended(User user) {
-        Session session = factory.getObject().getCurrentSession();
-        Query query = session.createNamedQuery("HoatDongNgoaiKhoa.findByUserRegisteredOrAttended", HoatDongNgoaiKhoa.class);
-        query.setParameter("user", user);
-        return query.getResultList();
-    }
 
 }

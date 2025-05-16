@@ -14,9 +14,12 @@ public interface ThamGiaRepository {
 
     // Lấy danh sách tham gia theo tham số
     List<ThamGia> getThamGias(Map<String, String> params);
+        ThamGia getThamGiaById(long id);
+
 
     // Lấy danh sách tham gia theo sinh viên
     List<ThamGia> getThamGiasBySinhVienId(long sinhVienId, Map<String, String> params);
+    
 
     // Lấy danh sách tham gia theo hoạt động ngoại khóa
     List<ThamGia> getThamGiasByHoatDongId(long hoatDongId, Map<String, String> params);
@@ -34,4 +37,9 @@ public interface ThamGiaRepository {
     void diemDanhHoatDong(User sinhVien, HoatDongNgoaiKhoa hoatDong);
 
     void diemDanhByCsv(HoatDongNgoaiKhoa hoatDong, MultipartFile file); // Thêm phương thức mới
+
+        
+         List<ThamGia> getThamGiaBySinhVienWithStates(long sinhVienId, List<ThamGia.TrangThai> states, Map<String, String> params);
+
+
 }

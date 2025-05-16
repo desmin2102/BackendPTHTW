@@ -6,6 +6,7 @@ package com.desmin.controllers;
 
 import com.desmin.pojo.BaiViet;
 import com.desmin.services.BaiVietService;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,8 +36,8 @@ public class ApiBaiVietController {
     private BaiVietService baiVietService;
 
     @GetMapping("/baiviets")
-    public ResponseEntity<List<BaiViet>> getAll() {
-        return new ResponseEntity<>(baiVietService.getAllBaiViet(), HttpStatus.OK);
+    public ResponseEntity<List<BaiViet>> list(@RequestParam Map<String, String> params) {
+        return new ResponseEntity<>(this.baiVietService.getAllBaiViet(params), HttpStatus.OK);
     }
 
     @PostMapping(path = "secure/baiviets", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,5 +69,20 @@ public class ApiBaiVietController {
             return new ResponseEntity<>(baiViet, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<?> deleteBaiViet(@PathVariable("id") long id) {
+        try {
+            baiVietService.deleteBaiViet(id);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Xóa bài viết thành công");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi xóa bài viết: " + e.getMessage());
+        }
     }
 }

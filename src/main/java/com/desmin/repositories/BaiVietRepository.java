@@ -15,7 +15,7 @@ import java.util.Map;
  * @author ADMIN
  */
 public interface BaiVietRepository {
-    List<BaiViet> getAllBaiViet();
+    List<BaiViet> getAllBaiViet(Map<String, String> params);
     BaiViet getBaiVietById(long id);
     BaiViet addBaiViet(BaiViet baiViet);
     void updateBaiViet(BaiViet baiViet);

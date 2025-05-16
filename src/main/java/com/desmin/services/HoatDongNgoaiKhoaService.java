@@ -28,8 +28,6 @@ public interface HoatDongNgoaiKhoaService {
 
     HoatDongNgoaiKhoa addHoatDongNgoaiKhoa(HoatDongNgoaiKhoa h);
 
-    List<HoatDongNgoaiKhoa> findByUserParticipated(User user);
 
-    List<HoatDongNgoaiKhoa> findByUserRegisteredOrAttended(User user);
 
 }

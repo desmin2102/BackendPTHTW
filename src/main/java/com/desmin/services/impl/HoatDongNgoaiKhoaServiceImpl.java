@@ -7,6 +7,7 @@ package com.desmin.services.impl;
 import com.desmin.pojo.HoatDongNgoaiKhoa;
 import com.desmin.pojo.User;
 import com.desmin.repositories.HoatDongNgoaiKhoaRepository;
+import com.desmin.repositories.ThamGiaRepository;
 import com.desmin.services.HoatDongNgoaiKhoaService;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,6 +26,8 @@ public class HoatDongNgoaiKhoaServiceImpl implements HoatDongNgoaiKhoaService{
 
  @Autowired
     private HoatDongNgoaiKhoaRepository hdnkRepo;
+ @Autowired
+    private ThamGiaRepository thamGiaRepo;
 
     @Transactional
     @Override
@@ -56,11 +59,7 @@ public class HoatDongNgoaiKhoaServiceImpl implements HoatDongNgoaiKhoaService{
         this.hdnkRepo.update(hoatDong);
     }
 
-    @Transactional
-    @Override
-    public List<HoatDongNgoaiKhoa> findByUserParticipated(User user) {
-        return this.hdnkRepo.findByUserParticipated(user);
-    }
+
 
     @Transactional
     @Override
@@ -69,8 +68,5 @@ public class HoatDongNgoaiKhoaServiceImpl implements HoatDongNgoaiKhoaService{
 
     }
     
-     @Override
-    public List<HoatDongNgoaiKhoa> findByUserRegisteredOrAttended(User user) {
-        return this.hdnkRepo.findByUserRegisteredOrAttended(user);
-    }
+    
 }

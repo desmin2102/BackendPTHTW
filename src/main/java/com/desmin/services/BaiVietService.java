@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface BaiVietService {
 
-    List<BaiViet> getAllBaiViet();
+    List<BaiViet> getAllBaiViet(Map<String, String> params);
 
     BaiViet getBaiVietById(long id);
 
