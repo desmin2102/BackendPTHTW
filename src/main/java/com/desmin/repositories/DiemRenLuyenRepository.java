@@ -23,5 +23,8 @@ public interface DiemRenLuyenRepository {
     // Lưu hoặc cập nhật điểm rèn luyện
     void saveDiemRenLuyen(DiemRenLuyen diemRenLuyen);
         DiemRenLuyen createDiemRenLuyen(User sinhVien, HocKyNamHoc hkNh);
+        
+    List<DiemRenLuyen> getDiemRenLuyenTongHop(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page, int size);
+    List<DiemRenLuyen> getAllDiemRenLuyenTongHop(Long khoaId, Long lopId, String xepLoai, Long hkNhId);
 
 }

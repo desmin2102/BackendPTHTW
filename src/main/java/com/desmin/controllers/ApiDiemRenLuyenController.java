@@ -6,11 +6,21 @@ package com.desmin.controllers;
 
 import com.desmin.pojo.DiemRenLuyen;
 import com.desmin.services.DiemRenLuyenService;
+import com.desmin.services.DieuService;
+import com.desmin.services.HocKyNamHocService;
+import com.desmin.services.LopService;
+import com.desmin.services.UserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +40,21 @@ public class ApiDiemRenLuyenController {
 
     @Autowired
     private DiemRenLuyenService diemRenLuyenService;
+       @Autowired
+    private LopService lopService;
+          @Autowired
+    private HocKyNamHocService hocKyNamHocService;
+          
+             @Autowired
+    private DieuService dieuService;
 
- @GetMapping("/diems/{userId}")
+    @Autowired
+    private UserService userService;
+    
+        private static final Logger logger = LoggerFactory.getLogger(ApiDiemRenLuyenController.class);
+
+
+    @GetMapping("/diems/{userId}")
     public ResponseEntity<List<DiemRenLuyen>> getDiemRenLuyenBySinhVienId(
             @PathVariable("userId") long userId,
             @RequestParam(value = "namHoc", required = false) String namHoc,
@@ -53,5 +76,108 @@ public class ApiDiemRenLuyenController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+ @GetMapping("/diems/")
+public ResponseEntity<List<DiemRenLuyen>> getDiems(@RequestParam Map<String, String> params) {
+    try {
+        List<DiemRenLuyen> drlList = diemRenLuyenService.getDiemRenLuyens(params);
+        return new ResponseEntity<>(drlList, HttpStatus.OK);
+    } catch (IllegalArgumentException e) {
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+}
+
+
+ 
+ @GetMapping("/secure/export/csv")
+    public ResponseEntity<Resource> exportDiemRenLuyenToCsv(
+            @RequestParam(name = "khoaId", required = false) Long khoaId,
+            @RequestParam(name = "lopId", required = false) Long lopId,
+            @RequestParam(name = "xepLoai", required = false) String xepLoai,
+            @RequestParam(name = "hkNhId", required = false) Long hkNhId,
+            @RequestParam(name = "page", required = false) Integer page) {
+        try {
+            logger.info("Export CSV request: khoaId={}, lopId={}, xepLoai={}, hkNhId={}, page={}",
+                    khoaId, lopId, xepLoai, hkNhId, page);
+
+            // Xác thực xepLoai
+            if (xepLoai != null && !isValidXepLoai(xepLoai)) {
+                logger.warn("Invalid xepLoai: {}", xepLoai);
+                return ResponseEntity.badRequest()
+                        .body(new ByteArrayResource("Lỗi: Xếp loại không hợp lệ.".getBytes()));
+            }
+
+            byte[] csvData = diemRenLuyenService.exportDiemRenLuyenToCsv(khoaId, lopId, xepLoai, hkNhId, page);
+
+            if (csvData == null || csvData.length == 0) {
+                logger.warn("No data found for CSV export with given parameters");
+                return ResponseEntity.badRequest()
+                        .body(new ByteArrayResource("Lỗi: Không tìm thấy dữ liệu để xuất.".getBytes()));
+            }
+
+            ByteArrayResource resource = new ByteArrayResource(csvData);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=diem_ren_luyen.csv")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .contentLength(csvData.length)
+                    .body(resource);
+        } catch (Exception e) {
+            logger.error("Error exporting CSV: {}", e.getMessage(), e);
+            String errorMessage = "Lỗi server khi xuất CSV: " + e.getMessage();
+            return ResponseEntity.badRequest()
+                    .body(new ByteArrayResource(errorMessage.getBytes()));
+        }
+    }
+
+    @GetMapping("/secure/export/pdf")
+    public ResponseEntity<Resource> exportDiemRenLuyenToPdf(
+            @RequestParam(name = "khoaId", required = false) Long khoaId,
+            @RequestParam(name = "lopId", required = false) Long lopId,
+            @RequestParam(name = "xepLoai", required = false) String xepLoai,
+            @RequestParam(name = "hkNhId", required = false) Long hkNhId,
+            @RequestParam(name = "page", required = false) Integer page) {
+        try {
+            logger.info("Export PDF request: khoaId={}, lopId={}, xepLoai={}, hkNhId={}, page={}",
+                    khoaId, lopId, xepLoai, hkNhId, page);
+
+            // Xác thực xepLoai
+            if (xepLoai != null && !isValidXepLoai(xepLoai)) {
+                logger.warn("Invalid xepLoai: {}", xepLoai);
+                return ResponseEntity.badRequest()
+                        .body(new ByteArrayResource("Lỗi: Xếp loại không hợp lệ.".getBytes()));
+            }
+
+            byte[] pdfData = diemRenLuyenService.exportDiemRenLuyenToPdf(khoaId, lopId, xepLoai, hkNhId, page);
+
+            if (pdfData == null || pdfData.length == 0) {
+                logger.warn("No data found for PDF export with given parameters");
+                return ResponseEntity.badRequest()
+                        .body(new ByteArrayResource("Lỗi: Không tìm thấy dữ liệu để xuất.".getBytes()));
+            }
+
+            ByteArrayResource resource = new ByteArrayResource(pdfData);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=diem_ren_luyen.pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(pdfData.length)
+                    .body(resource);
+        } catch (Exception e) {
+            logger.error("Error exporting PDF: {}", e.getMessage(), e);
+            String errorMessage = "Lỗi server khi xuất PDF: " + e.getMessage();
+            return ResponseEntity.badRequest()
+                    .body(new ByteArrayResource(errorMessage.getBytes()));
+        }
+    }
+
+    private boolean isValidXepLoai(String xepLoai) {
+        String[] validXepLoai = {"XUAT_SAC", "GIOI", "KHA", "TRUNG_BINH", "YEU", "KEM"};
+        for (String valid : validXepLoai) {
+            if (valid.equals(xepLoai)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

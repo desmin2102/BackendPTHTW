@@ -57,18 +57,29 @@ public class SpringSecurityConfigs {
                 .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class) // 💡 thêm dòng này
 
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/khoas", "api/lops", "api/baiviets", "api/baiviets/{id}", "api/hdnks").permitAll()
-                .requestMatchers("/api/auth/**", "/api/login", "/api/users").permitAll() // Thêm /api/login và /api/users
-                .requestMatchers(HttpMethod.GET, "/api /diems/{userId}", "/api/drlcts/{drlId}").permitAll()// Chỉ SINH_VIEN truy cập
-                .requestMatchers("/api/users/{userId}/hoat-dong").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/secure/profile").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/secure/hdnks").hasRole("TRO_LY_SINH_VIEN")
-                                        .requestMatchers(HttpMethod.POST, "/api/secure/dangkys").hasRole("SINH_VIEN")
-
-                .requestMatchers(HttpMethod.POST, "/api/secure/tlsv").hasRole("CVCTSV")
-                .requestMatchers(HttpMethod.POST, "/api/secure/cvctsv").hasRole("CVCTSV")
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/khoas",
+                        "/api/lops",
+                        "/api/baiviets",
+                        "/api/baiviets/{id}",
+                        "/api/hdnks"
+                    
+                ).permitAll()
+                .requestMatchers(
+                        "/api/auth/**",
+                        "/api/login",
+                        "/api/users"
+                ).permitAll()
+                // Role-based endpoints
+                .requestMatchers(HttpMethod.POST, "/api/secure/hdnks", "/api/secure/delete/{id}","/api/secure/create"
+                ,"/api/secure/diem-danh","/api/secure/diem-danh-csv/{hoatDongId}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
+                .requestMatchers(HttpMethod.DELETE, "/api/secure/delete/{id}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
+                .requestMatchers(HttpMethod.GET, "/api/secure/sinhviens","/api/secure/export/csv","/api/secure/export/pdf",
+                        "/api/secure/cho-duyet","/api/secure/duyet/{minhChungId}","api/secure/duyet/{minhChungId}","/api/secure/export-csv/{hoatDongId}"
+                        ).hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
+                .requestMatchers(HttpMethod.POST, "/api/secure/dangkys").hasRole("SINH_VIEN")
+                .requestMatchers(HttpMethod.POST, "/api/secure/tlsv", "/api/secure/cvctsv").hasRole("CVCTSV")
                 .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
                 .anyRequest().authenticated())
                 .formLogin(form -> form

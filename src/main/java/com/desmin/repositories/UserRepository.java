@@ -6,6 +6,7 @@ package com.desmin.repositories;
 
 import com.desmin.pojo.User;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,5 +23,8 @@ public interface UserRepository {
     User getUserById(long id);
 
     List<User> findAllSinhVien();
+    
+        List<User> getAllSinhVien(Map<String, String> params);
+
 
 }

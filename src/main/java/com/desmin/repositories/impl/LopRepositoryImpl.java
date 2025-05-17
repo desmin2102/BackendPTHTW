@@ -24,29 +24,35 @@ public class LopRepositoryImpl implements LopRepository {
     @Autowired
     private LocalSessionFactoryBean factory;
 
-    @Override
-    public List<Lop> getLops(Map<String, String> params) {
-        Session s = factory.getObject().getCurrentSession();
-        CriteriaBuilder b = s.getCriteriaBuilder();
-        CriteriaQuery<Lop> q = b.createQuery(Lop.class);
-        Root<Lop> root = q.from(Lop.class);
-        q.select(root);
+@Override
+public List<Lop> getLops(Map<String, String> params) {
+    Session s = factory.getObject().getCurrentSession();
+    CriteriaBuilder b = s.getCriteriaBuilder();
+    CriteriaQuery<Lop> q = b.createQuery(Lop.class);
+    Root<Lop> root = q.from(Lop.class);
+    q.select(root);
 
-        // Xử lý điều kiện lọc (nếu có)
-        List<Predicate> predicates = new ArrayList<>();
-        if (params != null) {
-            String kw = params.get("kw");
-            if (kw != null && !kw.isEmpty()) {
-                predicates.add(b.like(root.get("tenKhoa"), "%" + kw + "%"));
+    // Xử lý điều kiện lọc (nếu có)
+    List<Predicate> predicates = new ArrayList<>();
+    if (params != null) {
+        String khoaId = params.get("khoaId");
+        if (khoaId != null && !khoaId.isEmpty()) {
+            try {
+                Long khoaIdValue = Long.parseLong(khoaId);
+                predicates.add(b.equal(root.get("khoa").get("id"), khoaIdValue));
+            } catch (NumberFormatException e) {
+                // Bỏ qua nếu khoaId không phải số hợp lệ
             }
         }
+    }
 
-        if (!predicates.isEmpty()) {
-            q.where(predicates.toArray(new Predicate[0]));
-        }
+    if (!predicates.isEmpty()) {
+        q.where(predicates.toArray(new Predicate[0]));
+    }
 
-        Query query = s.createQuery(q);
-        return query.getResultList();    }
+    Query query = s.createQuery(q);
+    return query.getResultList();
+}
 
     @Override
     public Lop getLopById(long id) {

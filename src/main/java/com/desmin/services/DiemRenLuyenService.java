@@ -15,4 +15,8 @@ public interface DiemRenLuyenService {
 
     // Cộng điểm rèn luyện cho sinh viên
     void congDiemRenLuyen(User sinhVien, HoatDongNgoaiKhoa hoatDong);
+        List<DiemRenLuyen> getDiemRenLuyenTongHop(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page, int size);
+  byte[] exportDiemRenLuyenToCsv(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page);
+    byte[] exportDiemRenLuyenToPdf(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page);
+
 }

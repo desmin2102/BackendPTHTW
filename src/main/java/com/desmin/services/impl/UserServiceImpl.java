@@ -18,6 +18,7 @@ import com.desmin.repositories.UserRepository;
 import com.desmin.services.UserService;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -193,5 +194,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(long id) {
         return this.userRepo.getUserById(id);
+    }
+
+    @Override
+    public List<User> getAllSinhVien(Map<String, String> params) {
+                return this.userRepo.getAllSinhVien(params);
+
     }
 }

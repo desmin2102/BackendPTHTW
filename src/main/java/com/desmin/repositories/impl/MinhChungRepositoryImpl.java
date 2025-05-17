@@ -71,4 +71,12 @@ public class MinhChungRepositoryImpl implements MinhChungRepository {
 
         return query.getResultList();
     }
+
+    @Override
+    public void deleteMinhChung(MinhChung minhChung) {
+        Session session = factory.getObject().getCurrentSession();
+        session.remove(minhChung);
+        session.flush();
+    }
+
 }

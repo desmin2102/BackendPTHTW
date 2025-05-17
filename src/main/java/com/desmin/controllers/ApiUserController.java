@@ -144,13 +144,10 @@ public class ApiUserController {
         }
     }
 
-//    @GetMapping("/users/{userId}/hoat-dong")
-//    public ResponseEntity<List<HoatDongNgoaiKhoa>> getUserRegisteredOrAttendedActivities(@PathVariable(value = "userId") long userId) {
-//        User user = userDetailsService.getUserById(userId);
-//        if (user == null || user.getRole() != User.Role.SINH_VIEN) {
-//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-//        }
-//        return new ResponseEntity<>(hdnkService.findByUserRegisteredOrAttended(user), HttpStatus.OK);
-//    }
+ 
+    @GetMapping("sinhviens")
+    public ResponseEntity<List<User>> list(@RequestParam Map<String, String> params) {
+        return new ResponseEntity<>(this.userDetailsService.getAllSinhVien(params), HttpStatus.OK);
+    } 
 
 }

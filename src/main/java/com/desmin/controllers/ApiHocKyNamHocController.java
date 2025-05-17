@@ -42,7 +42,7 @@ public class ApiHocKyNamHocController {
         return new ResponseEntity<>(this.hknhService.getHocKyNamHocById(id), HttpStatus.OK);
     }
     
-     @PostMapping("/create")
+     @PostMapping("/secure/create")
     public ResponseEntity<String> createHocKyNamHoc(@RequestBody HocKyNamHoc hocKyNamHoc) {
         try {
             hknhService.createHocKyNamHoc(hocKyNamHoc);

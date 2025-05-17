@@ -71,7 +71,7 @@ public class ApiBaiVietController {
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("secure/delete/{id}")
     public ResponseEntity<?> deleteBaiViet(@PathVariable("id") long id) {
         try {
             baiVietService.deleteBaiViet(id);

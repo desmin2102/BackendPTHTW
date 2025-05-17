@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,67 +29,55 @@ public class ApiMinhChungController {
             @PathVariable("thamGiaId") Long thamGiaId,
             @RequestParam("description") String description,
             @RequestParam("anhMinhChung") MultipartFile anhMinhChung,
-            Authentication auth) {
-        String username = auth.getName();
-        User user = userService.getUserByUsername(username);
-        if (user == null) {
-            throw new IllegalArgumentException("Người dùng không tồn tại");
-        }
+            @RequestParam("userId") long userId
+    ) {
 
         MinhChung minhChung = new MinhChung();
         minhChung.setDescription(description);
         minhChung.setTrangThai(MinhChung.TrangThai.CHO_DUYET);
 
-        minhChungService.addMinhChung(minhChung, anhMinhChung, user, thamGiaId);
+        minhChungService.addMinhChung(minhChung, anhMinhChung, userId, thamGiaId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/cho-duyet")
-    public ResponseEntity<List<MinhChung>> getMinhChungChoDuyet(
-            @RequestParam(defaultValue = "1") String page,
-            Authentication auth) {
-        String username = auth.getName();
-        User user = userService.getUserByUsername(username);
-        if (user == null) {
-            throw new IllegalArgumentException("Người dùng không tồn tại");
+    @GetMapping("/secure/cho-duyet")
+    public ResponseEntity<List<MinhChung>> getMinhChungByTrangThaiAndKhoa(
+            @RequestParam("trangThai") MinhChung.TrangThai trangThai,
+            @RequestParam("khoaId") Long khoaId,
+            @RequestParam Map<String, String> params // để lấy thêm param page
+    ) {
+        List<MinhChung> results = minhChungService.getMinhChungByTrangThaiAndKhoa(trangThai, khoaId, params);
+        return ResponseEntity.ok(results);
+    }
+    
+      
+
+ @PutMapping("/secure/duyet/{minhChungId}")
+    public ResponseEntity<Void> duyetMinhChung(@PathVariable("minhChungId") Long minhChungId) {
+        try {
+            minhChungService.approveMinhChung(minhChungId);
+            return ResponseEntity.ok().build();
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(null);
         }
-
-        Map<String, String> params = new HashMap<>();
-        params.put("page", page);
-
-        List<MinhChung> minhChungs = minhChungService.getMinhChungByTrangThaiAndKhoa(
-                MinhChung.TrangThai.CHO_DUYET,
-                user.getKhoaPhuTrach().getId(),
-                params
-        );
-        return ResponseEntity.ok(minhChungs);
     }
 
-    @PutMapping("/{minhChungId}/duyet")
-    public ResponseEntity<Void> duyetMinhChung(
-            @PathVariable("minhChungId") Long minhChungId,
-            Authentication auth) {
-        String username = auth.getName();
-        User user = userService.getUserByUsername(username);
-        if (user == null) {
-            throw new IllegalArgumentException("Người dùng không tồn tại");
+    @PutMapping("/tu-choi/{minhChungId}")
+    public ResponseEntity<Void> tuChoiMinhChung(@PathVariable("minhChungId") Long minhChungId) {
+        try {
+            minhChungService.rejectMinhChung(minhChungId);
+            return ResponseEntity.ok().build();
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(null);
         }
-
-        minhChungService.approveMinhChung(minhChungId, user);
-        return ResponseEntity.ok().build();
     }
-
-    @PutMapping("/{minhChungId}/tu-choi")
-    public ResponseEntity<Void> tuChoiMinhChung(
-            @PathVariable("minhChungId") Long minhChungId,
-            Authentication auth) {
-        String username = auth.getName();
-        User user = userService.getUserByUsername(username);
-        if (user == null) {
-            throw new IllegalArgumentException("Người dùng không tồn tại");
+    
+    @GetMapping("/minh-chung/{id}")
+    public ResponseEntity<?> getMinhChungById(@PathVariable("id") Long id) {
+        MinhChung minhChung = minhChungService.getMinhChungById(id);
+        if (minhChung == null) {
+            return ResponseEntity.notFound().build();
         }
-
-        minhChungService.rejectMinhChung(minhChungId, user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(minhChung);
     }
 }

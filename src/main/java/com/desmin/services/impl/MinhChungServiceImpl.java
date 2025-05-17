@@ -2,11 +2,11 @@ package com.desmin.services.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.desmin.pojo.HoatDongNgoaiKhoa;
 import com.desmin.pojo.MinhChung;
 import com.desmin.pojo.ThamGia;
 import com.desmin.pojo.User;
 import com.desmin.repositories.MinhChungRepository;
-import com.desmin.repositories.ThamGiaRepository;
 import com.desmin.services.MinhChungService;
 import com.desmin.services.ThamGiaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MinhChungServiceImpl implements MinhChungService {
@@ -33,20 +34,22 @@ public class MinhChungServiceImpl implements MinhChungService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Transactional
     @Override
-    public void addMinhChung(MinhChung minhChung, MultipartFile anhMinhChung, User user, Long thamGiaId) {
+    public void addMinhChung(MinhChung minhChung, MultipartFile anhMinhChung, long userId, Long thamGiaId) {
         try {
+            // Kiểm tra ThamGia
             ThamGia thamGia = thamGiaService.getThamGiaById(thamGiaId);
             if (thamGia == null) {
                 throw new IllegalArgumentException("ThamGia không tồn tại");
             }
-            if (!thamGia.getSinhVien().getId().equals(user.getId())) {
+
+            // Kiểm tra quyền của userId
+            if (!thamGia.getSinhVien().getId().equals(userId)) {
                 throw new AccessDeniedException("Bạn không có quyền báo thiếu cho tham gia này");
             }
-            if (thamGia.getState() != ThamGia.TrangThai.BaoThieu) {
-                throw new IllegalStateException("Tham gia phải ở trạng thái Báo thiếu để gửi minh chứng");
-            }
 
+            // Gán ThamGia cho MinhChung
             minhChung.setThamGia(thamGia);
 
             // Xử lý ảnh minh chứng
@@ -61,10 +64,17 @@ public class MinhChungServiceImpl implements MinhChungService {
                 }
             }
 
+            // Thiết lập ngày tạo và cập nhật
             minhChung.setCreatedDate(LocalDateTime.now());
             minhChung.setUpdatedDate(LocalDateTime.now());
 
+            // Lưu MinhChung
             minhChungRepo.saveMinhChung(minhChung);
+
+            // Cập nhật trạng thái ThamGia thành BaoThieu sau khi lưu MinhChung thành công
+            thamGia.setState(ThamGia.TrangThai.BaoThieu);
+            thamGiaService.saveThamGia(thamGia);
+
         } catch (Exception ex) {
             Logger.getLogger(MinhChungServiceImpl.class.getName()).log(Level.SEVERE, "Error when creating MinhChung", ex);
             throw new RuntimeException("Lỗi khi tạo minh chứng: " + ex.getMessage(), ex);
@@ -86,62 +96,41 @@ public class MinhChungServiceImpl implements MinhChungService {
         return minhChungRepo.findByTrangThaiAndKhoa(trangThai, khoaId, params);
     }
 
-    @Override
-    public void approveMinhChung(Long minhChungId, User user) {
-        if (user.getRole() != User.Role.TRO_LY_SINH_VIEN) {
-            throw new AccessDeniedException("Chỉ trợ lý sinh viên được duyệt minh chứng");
-        }
-        if (user.getKhoaPhuTrach() == null) {
-            throw new IllegalStateException("Trợ lý sinh viên chưa được gán khoa phụ trách");
-        }
 
+    @Override
+    public void approveMinhChung(Long minhChungId) {
         MinhChung minhChung = minhChungRepo.findById(minhChungId);
         if (minhChung == null) {
             throw new IllegalArgumentException("Minh chứng không tồn tại");
         }
 
-        Long khoaId = minhChung.getThamGia().getSinhVien().getLop().getKhoa().getId();
-        if (!khoaId.equals(user.getKhoaPhuTrach().getId())) {
-            throw new AccessDeniedException("Bạn không có quyền duyệt minh chứng của khoa này");
-        }
-
         if (minhChung.getTrangThai() != MinhChung.TrangThai.CHO_DUYET) {
             throw new IllegalStateException("Minh chứng không ở trạng thái chờ duyệt");
         }
+
         minhChung.setTrangThai(MinhChung.TrangThai.DA_DUYET);
         minhChung.setUpdatedDate(LocalDateTime.now());
         minhChungRepo.saveMinhChung(minhChung);
 
         ThamGia thamGia = minhChung.getThamGia();
-        thamGia.setState(ThamGia.TrangThai.DiemDanh);
-        thamGia.setUpdatedDate(LocalDateTime.now());
-        thamGiaService.saveThamGia(thamGia);
+        User sinhVien = thamGia.getSinhVien();
+        HoatDongNgoaiKhoa hoatDong = thamGia.getHoatDongNgoaiKhoa();
+        thamGiaService.diemDanhHoatDong(sinhVien, hoatDong);
     }
 
     @Override
-    public void rejectMinhChung(Long minhChungId, User user) {
-        if (user.getRole() != User.Role.TRO_LY_SINH_VIEN) {
-            throw new AccessDeniedException("Chỉ trợ lý sinh viên được từ chối minh chứng");
-        }
-        if (user.getKhoaPhuTrach() == null) {
-            throw new IllegalStateException("Trợ lý sinh viên chưa được gán khoa phụ trách");
-        }
-
+    public void rejectMinhChung(Long minhChungId) {
         MinhChung minhChung = minhChungRepo.findById(minhChungId);
         if (minhChung == null) {
             throw new IllegalArgumentException("Minh chứng không tồn tại");
         }
 
-        Long khoaId = minhChung.getThamGia().getSinhVien().getLop().getKhoa().getId();
-        if (!khoaId.equals(user.getKhoaPhuTrach().getId())) {
-            throw new AccessDeniedException("Bạn không có quyền từ chối minh chứng của khoa này");
-        }
-
         if (minhChung.getTrangThai() != MinhChung.TrangThai.CHO_DUYET) {
             throw new IllegalStateException("Minh chứng không ở trạng thái chờ duyệt");
         }
+
         minhChung.setTrangThai(MinhChung.TrangThai.TU_CHOI);
         minhChung.setUpdatedDate(LocalDateTime.now());
-        minhChungRepo.saveMinhChung(minhChung);
+        minhChungRepo.deleteMinhChung(minhChung);
     }
 }

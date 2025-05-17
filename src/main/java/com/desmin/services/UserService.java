@@ -6,6 +6,7 @@ package com.desmin.services;
 
 import com.desmin.pojo.Khoa;
 import com.desmin.pojo.User;
+import java.util.List;
 import java.util.Map;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,4 +28,7 @@ public interface UserService extends UserDetailsService {
     User addCVCTSV(Map<String, String> params, MultipartFile avatar);
 
     boolean authenticate(String username, String password);
+    
+            List<User> getAllSinhVien(Map<String, String> params);
+
 }

@@ -1,11 +1,15 @@
 package com.desmin.repositories.impl;
 
 import com.desmin.pojo.DiemRenLuyen;
+import com.desmin.pojo.DiemRenLuyenChiTiet;
+import com.desmin.pojo.Dieu;
 import com.desmin.pojo.HocKyNamHoc;
+import com.desmin.pojo.Lop;
 import com.desmin.pojo.User;
 import com.desmin.repositories.DiemRenLuyenRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.LocalDateTime;
@@ -35,30 +39,33 @@ public class DiemRenLuyenRepositoryImpl implements DiemRenLuyenRepository {
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<DiemRenLuyen> query = builder.createQuery(DiemRenLuyen.class);
         Root<DiemRenLuyen> root = query.from(DiemRenLuyen.class);
-        query.select(root);
+        Join<DiemRenLuyen, User> sinhVien = root.join("sinhVien");
+        Join<User, Lop> lop = sinhVien.join("lop");
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(root.get("active"), true));
 
         if (params != null) {
-            List<Predicate> predicates = new ArrayList<>();
-
-            String xepLoai = params.get("xepLoai");
-            if (xepLoai != null && !xepLoai.isEmpty()) {
-                predicates.add(builder.equal(root.get("xepLoai"), DiemRenLuyen.XepLoai.valueOf(xepLoai)));
+            if (params.containsKey("xepLoai")) {
+                predicates.add(builder.equal(root.get("xepLoai"), DiemRenLuyen.XepLoai.valueOf(params.get("xepLoai"))));
             }
-
-            String hkNhId = params.get("hkNhId");
-            if (hkNhId != null && !hkNhId.isEmpty()) {
-                predicates.add(builder.equal(root.get("hkNh").get("id"), Long.parseLong(hkNhId)));
+            if (params.containsKey("hkNhId")) {
+                predicates.add(builder.equal(root.get("hkNh").get("id"), Long.parseLong(params.get("hkNhId"))));
             }
-
-            query.where(predicates.toArray(new Predicate[0]));
+            if (params.containsKey("lopId")) {
+                predicates.add(builder.equal(lop.get("id"), Long.parseLong(params.get("lopId"))));
+            }
+            if (params.containsKey("khoaId")) {
+                predicates.add(builder.equal(lop.get("khoa").get("id"), Long.parseLong(params.get("khoaId"))));
+            }
         }
 
+        query.where(predicates.toArray(new Predicate[0]));
         Query<DiemRenLuyen> q = session.createQuery(query);
 
         if (params != null && params.containsKey("page")) {
-            int page = Integer.parseInt(params.getOrDefault("page", "1"));
-            int start = (page - 1) * PAGE_SIZE;
-            q.setFirstResult(start);
+            int page = Integer.parseInt(params.get("page"));
+            q.setFirstResult((page - 1) * PAGE_SIZE);
             q.setMaxResults(PAGE_SIZE);
         }
 
@@ -122,5 +129,94 @@ public DiemRenLuyen createDiemRenLuyen(User sinhVien, HocKyNamHoc hkNh) {
 
     return diemRenLuyen;
 }
+@Override
+    @Transactional(readOnly = true)
+    public List<DiemRenLuyen> getDiemRenLuyenTongHop(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page, int size) {
+        try {
+            Session session = factory.getObject().getCurrentSession();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<DiemRenLuyen> query = builder.createQuery(DiemRenLuyen.class);
+            Root<DiemRenLuyen> root = query.from(DiemRenLuyen.class);
+            Join<DiemRenLuyen, User> sinhVien = root.join("sinhVien");
+            Join<User, Lop> lop = sinhVien.join("lop");
+            Join<Lop, com.desmin.pojo.Khoa> khoa = lop.join("khoa");
+            Join<DiemRenLuyen, HocKyNamHoc> hkNh = root.join("hkNh");
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(builder.equal(root.get("active"), true));
+
+            if (khoaId != null) {
+                predicates.add(builder.equal(khoa.get("id"), khoaId));
+            }
+            if (lopId != null) {
+                predicates.add(builder.equal(lop.get("id"), lopId));
+            }
+            if (xepLoai != null && !xepLoai.isEmpty()) {
+                try {
+                    predicates.add(builder.equal(root.get("xepLoai"), DiemRenLuyen.XepLoai.valueOf(xepLoai)));
+                } catch (IllegalArgumentException e) {
+                    return new ArrayList<>(); // Trả về rỗng nếu xepLoai không hợp lệ
+                }
+            }
+            if (hkNhId != null) {
+                predicates.add(builder.equal(hkNh.get("id"), hkNhId));
+            }
+
+            query.where(predicates.toArray(new Predicate[0]));
+            query.orderBy(builder.asc(sinhVien.get("id")), builder.asc(hkNh.get("id")));
+
+            Query<DiemRenLuyen> q = session.createQuery(query);
+            q.setFirstResult((page - 1) * size);
+            q.setMaxResults(size);
+
+            List<DiemRenLuyen> results = q.getResultList();
+            return results;
+        } catch (Exception e) {
+            throw new RuntimeException("Error executing query: " + e.getMessage(), e);
+        }
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<DiemRenLuyen> getAllDiemRenLuyenTongHop(Long khoaId, Long lopId, String xepLoai, Long hkNhId) {
+        try {
+            Session session = factory.getObject().getCurrentSession();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<DiemRenLuyen> query = builder.createQuery(DiemRenLuyen.class);
+            Root<DiemRenLuyen> root = query.from(DiemRenLuyen.class);
+            Join<DiemRenLuyen, User> sinhVien = root.join("sinhVien");
+            Join<User, Lop> lop = sinhVien.join("lop");
+            Join<Lop, com.desmin.pojo.Khoa> khoa = lop.join("khoa");
+            Join<DiemRenLuyen, HocKyNamHoc> hkNh = root.join("hkNh");
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(builder.equal(root.get("active"), true));
+
+            if (khoaId != null) {
+                predicates.add(builder.equal(khoa.get("id"), khoaId));
+            }
+            if (lopId != null) {
+                predicates.add(builder.equal(lop.get("id"), lopId));
+            }
+            if (xepLoai != null && !xepLoai.isEmpty()) {
+                try {
+                    predicates.add(builder.equal(root.get("xepLoai"), DiemRenLuyen.XepLoai.valueOf(xepLoai)));
+                } catch (IllegalArgumentException e) {
+                    return new ArrayList<>();
+                }
+            }
+            if (hkNhId != null) {
+                predicates.add(builder.equal(hkNh.get("id"), hkNhId));
+            }
+
+            query.where(predicates.toArray(new Predicate[0]));
+            query.orderBy(builder.asc(sinhVien.get("id")), builder.asc(hkNh.get("id")));
+
+            Query<DiemRenLuyen> q = session.createQuery(query);
+            return q.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Error executing query: " + e.getMessage(), e);
+        }
+    }
 
 }

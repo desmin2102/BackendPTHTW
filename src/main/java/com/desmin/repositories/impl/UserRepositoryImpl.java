@@ -15,8 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.desmin.repositories.UserRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -26,6 +29,7 @@ import java.util.List;
 @Transactional
 public class UserRepositoryImpl implements UserRepository {
 
+    
     @Autowired
     private LocalSessionFactoryBean factory;
     @Autowired
@@ -70,4 +74,55 @@ public class UserRepositoryImpl implements UserRepository {
         q.select(root).where(b.equal(root.get("role"), User.Role.SINH_VIEN));
         return s.createQuery(q).getResultList();
     }
+
+@Override
+public List<User> getAllSinhVien(Map<String, String> params) {
+    Session s = factory.getObject().getCurrentSession();
+    CriteriaBuilder b = s.getCriteriaBuilder();
+    CriteriaQuery<User> q = b.createQuery(User.class);
+    Root<User> root = q.from(User.class);
+    q.select(root);
+
+    if (params != null) {
+        List<Predicate> predicates = new ArrayList<>();
+
+        // Luôn lọc theo vai trò là SINH_VIEN
+        predicates.add(b.equal(root.get("role"), User.Role.SINH_VIEN));
+
+        String lopId = params.get("lopId");
+        if (lopId != null && !lopId.isEmpty()) {
+            try {
+                predicates.add(b.equal(root.get("lop").get("id"), Integer.parseInt(lopId)));
+            } catch (NumberFormatException e) {
+                // Bỏ qua nếu lỗi format
+            }
+        }
+
+        String khoaId = params.get("khoaId");
+        if (khoaId != null && !khoaId.isEmpty()) {
+            try {
+                predicates.add(b.equal(root.get("lop").get("khoa").get("id"), Integer.parseInt(khoaId)));
+            } catch (NumberFormatException e) {
+                // Bỏ qua nếu lỗi format
+            }
+        }
+
+        String kw = params.get("kw");
+        if (kw != null && !kw.isEmpty()) {
+            predicates.add(b.or(
+                b.like(root.get("ho"), "%" + kw + "%"),
+                b.like(root.get("ten"), "%" + kw + "%"),
+                b.like(root.get("mssv"), "%" + kw + "%")
+            ));
+        }
+
+        q.where(predicates.toArray(Predicate[]::new));
+    }
+
+    Query query = s.createQuery(q);
+
+   
+
+    return query.getResultList();
+}
 }

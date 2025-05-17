@@ -112,7 +112,7 @@ public class ApiThamGiaController {
     }
 
     
-    @PostMapping("/diem-danh")
+    @PostMapping("/secure/diem-danh")
     public ResponseEntity<?> diemDanhHoatDong(@RequestParam Long sinhVienId, @RequestParam Long hoatDongId) {
         try {
             User sinhVien = userService.getUserById(sinhVienId);
@@ -132,7 +132,7 @@ public class ApiThamGiaController {
         }
     }
     
-    @GetMapping("/export-csv/{hoatDongId}")
+    @GetMapping("/secure/export-csv/{hoatDongId}")
     public ResponseEntity<byte[]> exportThamGiaToCsv(@PathVariable("hoatDongId") Long hoatDongId) {
         try {
             byte[] csvBytes = thamGiaService.exportThamGiaToCsv(hoatDongId);
