@@ -121,7 +121,7 @@ public class DiemRenLuyenServiceImpl implements DiemRenLuyenService {
     
     
  @Override
-    public byte[] exportDiemRenLuyenToCsv(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page) {
+    public byte[] exportDiemRenLuyenToCsv(Long khoaId, Long lopId, String xepLoai, Long hkNhId) {
         try {
             List<DiemRenLuyen> danhSach = diemRenLuyenRepository.getAllDiemRenLuyenTongHop(khoaId, lopId, xepLoai, hkNhId);
             if (danhSach.isEmpty()) {
@@ -195,7 +195,7 @@ public class DiemRenLuyenServiceImpl implements DiemRenLuyenService {
     }
 
     @Override
-    public byte[] exportDiemRenLuyenToPdf(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page) {
+    public byte[] exportDiemRenLuyenToPdf(Long khoaId, Long lopId, String xepLoai, Long hkNhId) {
         try {
             List<DiemRenLuyen> danhSach = diemRenLuyenRepository.getAllDiemRenLuyenTongHop(khoaId, lopId, xepLoai, hkNhId);
             if (danhSach.isEmpty()) {

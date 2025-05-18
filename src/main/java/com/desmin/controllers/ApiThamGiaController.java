@@ -94,7 +94,7 @@ public class ApiThamGiaController {
         }
     }
     
-    @PostMapping("/diem-danh-csv/{hoatDongId}")
+    @PostMapping("/secure/diem-danh-csv/{hoatDongId}")
     public ResponseEntity<?> diemDanhByCsv(@PathVariable("hoatDongId") Long hoatDongId,
                                           @RequestParam("file") MultipartFile file) {
         try {
@@ -153,7 +153,7 @@ public class ApiThamGiaController {
         }
     }
 
-     @GetMapping("/tham-gia/{sinhVienId}")
+     @GetMapping("/secure/tham-gia/{sinhVienId}")
     public ResponseEntity<?> getThamGiaBySinhVien(
             @PathVariable("sinhVienId") Long sinhVienId,
             @RequestParam Map<String, String> params) {

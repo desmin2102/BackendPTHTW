@@ -62,7 +62,7 @@ public class ApiMinhChungController {
         }
     }
 
-    @PutMapping("/tu-choi/{minhChungId}")
+    @PutMapping("/secure/tu-choi/{minhChungId}")
     public ResponseEntity<Void> tuChoiMinhChung(@PathVariable("minhChungId") Long minhChungId) {
         try {
             minhChungService.rejectMinhChung(minhChungId);

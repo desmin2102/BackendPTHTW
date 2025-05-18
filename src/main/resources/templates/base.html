@@ -27,32 +27,32 @@
     </th:block>
 </head>
 <body>
-    <header th:fragment="header">
-        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">Quản lý điểm rèn luyện CVCTSV</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="collapsibleNavbar">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/}" sec:authorize="isAuthenticated()">Trang chủ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/thongke}" sec:authorize="isAuthenticated()">Thống kê</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/taotroly}" sec:authorize="isAuthenticated()">Tạo trợ lý</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-danger" th:href="@{/logout}" sec:authorize="isAuthenticated()">Đăng xuất</a>
-                        </li>
-                    </ul>
-                </div>
+<header th:fragment="header">
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Quản lý điểm rèn luyện CVCTSV</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/thongke}">Thống kê</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/taotroly}">Tạo trợ lý</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link text-danger" th:href="@{/logout}">Đăng xuất</a>
+                    </li>
+                </ul>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
+</header>
 
     <footer th:fragment="footer">
         <div sec:authorize="isAuthenticated()" class="mt-4 p-5 bg-primary text-white rounded">

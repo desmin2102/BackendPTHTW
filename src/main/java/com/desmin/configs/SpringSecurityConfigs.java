@@ -57,13 +57,17 @@ public class SpringSecurityConfigs {
                 .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class) // 💡 thêm dòng này
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+
                 .requestMatchers(
                         HttpMethod.GET,
                         "/api/khoas",
                         "/api/lops",
                         "/api/baiviets",
                         "/api/baiviets/{id}",
-                        "/api/hdnks"
+                        "/api/hdnks",
+                        "/api/dieus",
+                        "/api/hknhs"
                     
                 ).permitAll()
                 .requestMatchers(
@@ -82,22 +86,11 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.POST, "/api/secure/tlsv", "/api/secure/cvctsv").hasRole("CVCTSV")
                 .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
                 .anyRequest().authenticated())
-                .formLogin(form -> form
-                .loginPage("/login")
+                 .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
-                .successHandler((request, response, authentication) -> {
-                    if (authentication.getAuthorities().stream()
-                            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CVCTSV"))) {
-                        response.sendRedirect("/QuanLyDiemRenLuyen/"); // Chuyển hướng với context path
-                    } else {
-                        throw new IllegalStateException("Chỉ tài khoản CVCTSV được phép đăng nhập");
-                    }
-                })
-                )
-                .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
-                );
+               .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error=true").permitAll())
+                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
 
         return http.build();
     }
@@ -141,4 +134,5 @@ public class SpringSecurityConfigs {
         return source;
     }
 
+    
 }

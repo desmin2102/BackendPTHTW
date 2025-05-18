@@ -145,7 +145,7 @@ public class ApiUserController {
     }
 
  
-    @GetMapping("sinhviens")
+    @GetMapping("/secure/sinhviens")
     public ResponseEntity<List<User>> list(@RequestParam Map<String, String> params) {
         return new ResponseEntity<>(this.userDetailsService.getAllSinhVien(params), HttpStatus.OK);
     } 

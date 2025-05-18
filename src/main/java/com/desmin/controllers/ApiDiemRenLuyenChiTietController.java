@@ -29,7 +29,7 @@ public class ApiDiemRenLuyenChiTietController {
     @Autowired
     private DiemRenLuyenChiTietService drlctService;
     
-@GetMapping("/drlcts/{drlId}")
+@GetMapping("/secure/drlcts/{drlId}")
     public ResponseEntity<List<DiemRenLuyenChiTiet>> getDiemRenLuyenChiTietByDiemRenLuyenId(
             @PathVariable("drlId") long drlId,
             @RequestParam Map<String, String> params) {

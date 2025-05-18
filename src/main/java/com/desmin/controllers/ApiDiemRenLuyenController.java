@@ -54,7 +54,7 @@ public class ApiDiemRenLuyenController {
         private static final Logger logger = LoggerFactory.getLogger(ApiDiemRenLuyenController.class);
 
 
-    @GetMapping("/diems/{userId}")
+    @GetMapping("/secure/diems/{userId}")
     public ResponseEntity<List<DiemRenLuyen>> getDiemRenLuyenBySinhVienId(
             @PathVariable("userId") long userId,
             @RequestParam(value = "namHoc", required = false) String namHoc,
@@ -77,7 +77,7 @@ public class ApiDiemRenLuyenController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
- @GetMapping("/diems/")
+ @GetMapping("/secure/diems/")
 public ResponseEntity<List<DiemRenLuyen>> getDiems(@RequestParam Map<String, String> params) {
     try {
         List<DiemRenLuyen> drlList = diemRenLuyenService.getDiemRenLuyens(params);
@@ -94,11 +94,11 @@ public ResponseEntity<List<DiemRenLuyen>> getDiems(@RequestParam Map<String, Str
             @RequestParam(name = "khoaId", required = false) Long khoaId,
             @RequestParam(name = "lopId", required = false) Long lopId,
             @RequestParam(name = "xepLoai", required = false) String xepLoai,
-            @RequestParam(name = "hkNhId", required = false) Long hkNhId,
-            @RequestParam(name = "page", required = false) Integer page) {
+            @RequestParam(name = "hkNhId", required = false) Long hkNhId)
+            {
         try {
             logger.info("Export CSV request: khoaId={}, lopId={}, xepLoai={}, hkNhId={}, page={}",
-                    khoaId, lopId, xepLoai, hkNhId, page);
+                    khoaId, lopId, xepLoai, hkNhId);
 
             // Xác thực xepLoai
             if (xepLoai != null && !isValidXepLoai(xepLoai)) {
@@ -107,7 +107,7 @@ public ResponseEntity<List<DiemRenLuyen>> getDiems(@RequestParam Map<String, Str
                         .body(new ByteArrayResource("Lỗi: Xếp loại không hợp lệ.".getBytes()));
             }
 
-            byte[] csvData = diemRenLuyenService.exportDiemRenLuyenToCsv(khoaId, lopId, xepLoai, hkNhId, page);
+            byte[] csvData = diemRenLuyenService.exportDiemRenLuyenToCsv(khoaId, lopId, xepLoai, hkNhId);
 
             if (csvData == null || csvData.length == 0) {
                 logger.warn("No data found for CSV export with given parameters");
@@ -135,11 +135,11 @@ public ResponseEntity<List<DiemRenLuyen>> getDiems(@RequestParam Map<String, Str
             @RequestParam(name = "khoaId", required = false) Long khoaId,
             @RequestParam(name = "lopId", required = false) Long lopId,
             @RequestParam(name = "xepLoai", required = false) String xepLoai,
-            @RequestParam(name = "hkNhId", required = false) Long hkNhId,
-            @RequestParam(name = "page", required = false) Integer page) {
+            @RequestParam(name = "hkNhId", required = false) Long hkNhId
+          ) {
         try {
-            logger.info("Export PDF request: khoaId={}, lopId={}, xepLoai={}, hkNhId={}, page={}",
-                    khoaId, lopId, xepLoai, hkNhId, page);
+            logger.info("Export PDF request: khoaId={}, lopId={}, xepLoai={}, hkNhId={}",
+                    khoaId, lopId, xepLoai, hkNhId);
 
             // Xác thực xepLoai
             if (xepLoai != null && !isValidXepLoai(xepLoai)) {
@@ -148,7 +148,7 @@ public ResponseEntity<List<DiemRenLuyen>> getDiems(@RequestParam Map<String, Str
                         .body(new ByteArrayResource("Lỗi: Xếp loại không hợp lệ.".getBytes()));
             }
 
-            byte[] pdfData = diemRenLuyenService.exportDiemRenLuyenToPdf(khoaId, lopId, xepLoai, hkNhId, page);
+            byte[] pdfData = diemRenLuyenService.exportDiemRenLuyenToPdf(khoaId, lopId, xepLoai, hkNhId);
 
             if (pdfData == null || pdfData.length == 0) {
                 logger.warn("No data found for PDF export with given parameters");
