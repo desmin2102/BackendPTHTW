@@ -1,19 +1,39 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Trang chủ</title>
-    <th:block th:replace="base :: styles"></th:block>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Trang chủ</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
 </head>
 <body>
-    <div th:replace="base :: header"></div>
-<div class="content">
-    <main class="container">
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-1">Chào mừng đến với Quản lý điểm rèn luyện CVCTSV</h1>
+            <p>Đây là trang chủ, mọi người đều có thể truy cập.</p>
 
-
-
-    </main>
-</div>
-    <div th:replace="base :: footer"></div>
+            <!-- Hiển thị danh sách bài viết -->
+            <h2 class="mt-4">Danh sách bài viết</h2>
+            <div th:if="${baiViets == null}">
+                <p>Lỗi: Không thể tải danh sách bài viết.</p>
+            </div>
+            <div th:if="${baiViets != null and baiViets.isEmpty()}">
+                <p>Chưa có bài viết nào.</p>
+            </div>
+            <div class="row" th:if="${baiViets != null and !baiViets.isEmpty()}">
+                <div class="col-md-4 mb-3" th:each="baiViet : ${baiViets}">
+                    <div class="card">
+                        <img th:if="${baiViet.imageUrl}" th:src="${baiViet.imageUrl}" class="card-img-top" alt="Hình ảnh bài viết" style="max-height: 200px; object-fit: cover;" />
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${baiViet.title}"></h5>
+                            <p class="card-text" th:text="${#strings.abbreviate(baiViet.content, 100)}"></p>
+                            <a th:href="@{/baiviets/{id}(id=${baiViet.id})}" class="btn btn-primary">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
     
     <script th:src="@{/js/main.js}"></script>
 </body>

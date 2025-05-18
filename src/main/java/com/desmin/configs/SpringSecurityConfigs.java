@@ -54,11 +54,10 @@ public class SpringSecurityConfigs {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(c -> c.disable())
-                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class) // 💡 thêm dòng này
-
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**").permitAll()
-
+                .requestMatchers("/", "/home", "/login", "/css/**", "/js/**","/baiviets/{id:\\d+}").permitAll()
+                       
                 .requestMatchers(
                         HttpMethod.GET,
                         "/api/khoas",
@@ -68,7 +67,6 @@ public class SpringSecurityConfigs {
                         "/api/hdnks",
                         "/api/dieus",
                         "/api/hknhs"
-                    
                 ).permitAll()
                 .requestMatchers(
                         "/api/auth/**",
@@ -76,19 +74,19 @@ public class SpringSecurityConfigs {
                         "/api/users"
                 ).permitAll()
                 // Role-based endpoints
-                .requestMatchers(HttpMethod.POST, "/api/secure/hdnks", "/api/secure/delete/{id}","/api/secure/create"
-                ,"/api/secure/diem-danh","/api/secure/diem-danh-csv/{hoatDongId}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
+                .requestMatchers(HttpMethod.POST, "/api/secure/hdnks", "/api/secure/delete/{id}", "/api/secure/create",
+                         "/api/secure/diem-danh", "/api/secure/diem-danh-csv/{hoatDongId}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
                 .requestMatchers(HttpMethod.DELETE, "/api/secure/delete/{id}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
-                .requestMatchers(HttpMethod.GET, "/api/secure/sinhviens","/api/secure/export/csv","/api/secure/export/pdf",
-                        "/api/secure/cho-duyet","/api/secure/duyet/{minhChungId}","api/secure/duyet/{minhChungId}","/api/secure/export-csv/{hoatDongId}"
-                        ).hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
+                .requestMatchers(HttpMethod.GET, "/api/secure/sinhviens", "/api/secure/export/csv", "/api/secure/export/pdf",
+                        "/api/secure/cho-duyet", "/api/secure/duyet/{minhChungId}", "api/secure/duyet/{minhChungId}", "/api/secure/export-csv/{hoatDongId}"
+                ).hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
                 .requestMatchers(HttpMethod.POST, "/api/secure/dangkys").hasRole("SINH_VIEN")
                 .requestMatchers(HttpMethod.POST, "/api/secure/tlsv", "/api/secure/cvctsv").hasRole("CVCTSV")
                 .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
                 .anyRequest().authenticated())
-                 .formLogin(form -> form.loginPage("/login")
+                .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
-               .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true").permitAll())
                 .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
 
@@ -134,5 +132,4 @@ public class SpringSecurityConfigs {
         return source;
     }
 
-    
 }

@@ -67,6 +67,7 @@
             <artifactId>spring-security-config</artifactId>
             <version>6.3.4</version>
         </dependency>
+        
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
@@ -133,14 +134,7 @@
                 <version>3.4.0</version>
             </plugin>
         </plugins>
-        <resources>
-        <resource>
-            <directory>src/main/resources</directory>
-            <includes>
-                <include>**/*.ttf</include>
-            </includes>
-        </resource>
-        </resources>
+        
     </build>
 </project>
 

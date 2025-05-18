@@ -15,6 +15,7 @@ D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\controllers\ApiLopControlle
 D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\controllers\ApiMinhChungController.java
 D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\controllers\ApiThamGiaController.java
 D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\controllers\ApiUserController.java
+D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\controllers\BaiVietController.java
 D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\controllers\IndexController.java
 D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\controllers\UserController.java
 D:\PTHTW\QuanLyDiemRenLuyen\src\main\java\com\desmin\filters\JwtFilter.java

@@ -72,6 +72,7 @@ com\desmin\repositories\UserRepository.class
 com\desmin\repositories\ThamGiaRepository.class
 com\desmin\repositories\HocKyNamHocRepository.class
 com\desmin\services\DieuService.class
+com\desmin\controllers\BaiVietController.class
 com\desmin\pojo\ThamGia$TrangThai.class
 com\desmin\services\BaiVietService.class
 com\desmin\services\LopService.class
