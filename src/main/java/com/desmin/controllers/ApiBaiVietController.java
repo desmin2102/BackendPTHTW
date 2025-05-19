@@ -5,6 +5,8 @@
 package com.desmin.controllers;
 
 import com.desmin.pojo.BaiViet;
+import com.desmin.pojo.Comment;
+import com.desmin.pojo.Like;
 import com.desmin.services.BaiVietService;
 import java.util.HashMap;
 import java.util.List;
@@ -85,4 +87,15 @@ public class ApiBaiVietController {
                     .body("Lỗi khi xóa bài viết: " + e.getMessage());
         }
     }
+
+    @GetMapping("/baiviets/{id}/comments")
+    public ResponseEntity<List<Comment>> getComments(@PathVariable("id") long id) {
+        return new ResponseEntity<>(this.baiVietService.getComments(id), HttpStatus.OK);
+    }
+
+  @GetMapping("/baiviets/{id}/likes")
+public ResponseEntity<List<Like>> getLikes(@PathVariable("id") long id) {
+    return new ResponseEntity<>(this.baiVietService.getLikes(id), HttpStatus.OK);
+}
+
 }

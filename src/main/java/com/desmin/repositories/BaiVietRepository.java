@@ -5,8 +5,8 @@
 package com.desmin.repositories;
 
 import com.desmin.pojo.BaiViet;
-import com.desmin.pojo.HoatDongNgoaiKhoa;
-import com.desmin.pojo.Khoa;
+import com.desmin.pojo.Comment;
+import com.desmin.pojo.Like;
 import java.util.List;
 import java.util.Map;
 
@@ -21,5 +21,7 @@ public interface BaiVietRepository {
     void updateBaiViet(BaiViet baiViet);
     void deleteBaiViet(long id);
     BaiViet getBaiVietByHoatDongId(long hoatDongId);
+    List<Comment> getComments(long baivietId);
+    List <Like> getLikes(long baiVietId);
 
 }

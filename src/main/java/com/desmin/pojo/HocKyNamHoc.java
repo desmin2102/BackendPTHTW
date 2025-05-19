@@ -37,6 +37,9 @@ public class HocKyNamHoc implements Serializable {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+      public HocKyNamHoc(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;

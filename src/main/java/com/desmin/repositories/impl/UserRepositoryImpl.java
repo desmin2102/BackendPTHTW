@@ -125,4 +125,24 @@ public List<User> getAllSinhVien(Map<String, String> params) {
 
     return query.getResultList();
 }
+
+   @Override
+    public List<User> getTroLysByKhoaId(long khoaId) { // Sửa để trả về List<User>
+        Session s = factory.getObject().getCurrentSession();
+        CriteriaBuilder b = s.getCriteriaBuilder();
+        CriteriaQuery<User> q = b.createQuery(User.class);
+        Root<User> root = q.from(User.class);
+
+        // Lọc trợ lý (role = TRO_LY) và khoaPhuTrach.id = khoaId
+        q.select(root)
+         .where(
+             b.and(
+                 b.equal(root.get("role"), User.Role.TRO_LY_SINH_VIEN),
+                 b.equal(root.get("khoaPhuTrach").get("id"), khoaId) 
+             )
+         );
+
+        return s.createQuery(q).getResultList();
+    }
+
 }

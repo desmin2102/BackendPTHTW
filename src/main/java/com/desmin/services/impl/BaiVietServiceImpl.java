@@ -7,7 +7,9 @@ package com.desmin.services.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.desmin.pojo.BaiViet;
+import com.desmin.pojo.Comment;
 import com.desmin.pojo.HoatDongNgoaiKhoa;
+import com.desmin.pojo.Like;
 import com.desmin.pojo.User;
 import com.desmin.repositories.BaiVietRepository;
 import com.desmin.repositories.HoatDongNgoaiKhoaRepository;
@@ -20,7 +22,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,5 +106,17 @@ public class BaiVietServiceImpl implements BaiVietService {
     @Override
     public BaiViet getBaiVietByHoatDongId(long hoatDongId) {
         return this.baiVietRepo.getBaiVietByHoatDongId(hoatDongId);
+    }
+
+    @Override
+    public List<Comment> getComments(long baivietId) {
+                return this.baiVietRepo.getComments(baivietId);
+
+    }
+
+     @Override
+    public List<Like> getLikes(long baivietId) {
+                return this.baiVietRepo.getLikes(baivietId);
+
     }
 }

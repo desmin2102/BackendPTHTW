@@ -24,7 +24,7 @@ public class ApiMinhChungController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/bao-thieu/{thamGiaId}")
+    @PostMapping("/secure/bao-thieu/{thamGiaId}")
     public ResponseEntity<Void> baoThieu(
             @PathVariable("thamGiaId") Long thamGiaId,
             @RequestParam("description") String description,
@@ -72,7 +72,7 @@ public class ApiMinhChungController {
         }
     }
     
-    @GetMapping("/minh-chung/{id}")
+    @GetMapping("/secure/minh-chung/{id}")
     public ResponseEntity<?> getMinhChungById(@PathVariable("id") Long id) {
         MinhChung minhChung = minhChungService.getMinhChungById(id);
         if (minhChung == null) {

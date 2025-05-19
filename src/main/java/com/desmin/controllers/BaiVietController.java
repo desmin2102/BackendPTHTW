@@ -1,6 +1,8 @@
 package com.desmin.controllers;
 
 import com.desmin.pojo.BaiViet;
+import com.desmin.pojo.Comment;
+import com.desmin.pojo.Like;
 import com.desmin.services.BaiVietService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 public class BaiVietController {
@@ -54,8 +58,8 @@ public class BaiVietController {
     @PostMapping("/baiviets/create")
     @PreAuthorize("hasRole('CVCTSV')")
     public String create(@ModelAttribute BaiViet baiViet,
-                         @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
-                         RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+            RedirectAttributes redirectAttributes) {
         try {
             Map<String, String> params = new HashMap<>();
             params.put("tieuDe", baiViet.getTitle());
@@ -80,6 +84,8 @@ public class BaiVietController {
         redirectAttributes.addFlashAttribute("error", "Bài viết không tồn tại");
         return "redirect:/baiviets";
     }
+
+
 
     // Xóa bài viết
     @PostMapping("/baiviets/delete/{id}")

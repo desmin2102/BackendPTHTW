@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping; // Thêm import cho endpoint test
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -149,5 +150,15 @@ public class ApiUserController {
     public ResponseEntity<List<User>> list(@RequestParam Map<String, String> params) {
         return new ResponseEntity<>(this.userDetailsService.getAllSinhVien(params), HttpStatus.OK);
     } 
+
+    
+ @GetMapping("/user/profile/{id}")
+public ResponseEntity<?> getProfileById(@PathVariable("id") Long id) {
+    User user = this.userDetailsService.getUserById(id);
+    if (user == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy người dùng");
+    }
+    return ResponseEntity.ok(user);
+}
 
 }

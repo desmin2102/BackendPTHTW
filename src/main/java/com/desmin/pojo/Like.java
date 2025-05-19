@@ -5,6 +5,20 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "like_interaction", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "bai_viet_id"}))
+@NamedQueries({
+    @NamedQuery(
+        name = "Like.existsByUserAndBaiViet",
+        query = "SELECT COUNT(l) FROM Like l WHERE l.user.id = :userId AND l.baiViet.id = :baiVietId"
+    ),
+    @NamedQuery(
+        name = "Like.deleteByUserAndBaiViet",
+        query = "DELETE FROM Like l WHERE l.user.id = :userId AND l.baiViet.id = :baiVietId"
+    ),
+    @NamedQuery(
+        name = "Like.countByBaiVietId",
+        query = "SELECT COUNT(l) FROM Like l WHERE l.baiViet.id = :baiVietId"
+    )
+})
 public class Like implements Serializable{
 
     @Id
@@ -19,6 +33,9 @@ public class Like implements Serializable{
     @JoinColumn(name = "bai_viet_id", nullable = false)
     private BaiViet baiViet;
 
+      public Like(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;

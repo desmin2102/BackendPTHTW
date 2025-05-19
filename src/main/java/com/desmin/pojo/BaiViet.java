@@ -60,6 +60,10 @@ public class BaiViet implements Serializable {
     @JsonIgnore
     @Transient
     private MultipartFile file;
+    
+    public BaiViet(){
+        
+    }
 
     // Getters và Setters
     public Long getId() {

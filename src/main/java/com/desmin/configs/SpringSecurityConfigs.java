@@ -66,7 +66,11 @@ public class SpringSecurityConfigs {
                         "/api/baiviets/{id}",
                         "/api/hdnks",
                         "/api/dieus",
-                        "/api/hknhs"
+                        "/api/hknhs",
+                        "/api/firebase/test",
+                        "/api/baiviets/{id}/comments",
+                        "/api/baiviets/{id}/likes",
+                        "/api/user/profile/{id}"
                 ).permitAll()
                 .requestMatchers(
                         "/api/auth/**",
@@ -77,10 +81,12 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.POST, "/api/secure/hdnks", "/api/secure/delete/{id}", "/api/secure/create",
                          "/api/secure/diem-danh", "/api/secure/diem-danh-csv/{hoatDongId}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
                 .requestMatchers(HttpMethod.DELETE, "/api/secure/delete/{id}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
-                .requestMatchers(HttpMethod.GET, "/api/secure/sinhviens", "/api/secure/export/csv", "/api/secure/export/pdf",
+                .requestMatchers(HttpMethod.GET, "/api/secure/sinhviens", "/api/secure/export/csvdrl", "/api/secure/export/pdf",
                         "/api/secure/cho-duyet", "/api/secure/duyet/{minhChungId}", "api/secure/duyet/{minhChungId}", "/api/secure/export-csv/{hoatDongId}"
                 ).hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
-                .requestMatchers(HttpMethod.POST, "/api/secure/dangkys").hasRole("SINH_VIEN")
+                .requestMatchers(HttpMethod.POST, "/api/secure/dangkys","/api/secure/bao-thieu/{thamGiaId}").hasRole("SINH_VIEN")
+                                        .requestMatchers(HttpMethod.POST, "/api/secure/send").hasAnyRole("SINH_VIEN","TRO_LY_SINH_VIEN")
+
                 .requestMatchers(HttpMethod.POST, "/api/secure/tlsv", "/api/secure/cvctsv").hasRole("CVCTSV")
                 .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
                 .anyRequest().authenticated())
@@ -109,6 +115,9 @@ public class SpringSecurityConfigs {
         return cloudinary;
     }
 
+    
+    
+    
     @Bean
     @Order(0)
     public StandardServletMultipartResolver multipartResolver() {

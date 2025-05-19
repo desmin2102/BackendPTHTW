@@ -58,6 +58,10 @@ public class MinhChung implements Serializable{
     @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate = LocalDateTime.now();
 
+    
+      public MinhChung(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;

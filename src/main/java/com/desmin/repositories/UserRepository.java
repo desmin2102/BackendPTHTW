@@ -16,6 +16,9 @@ public interface UserRepository {
 
     User getUserByUsername(String username);
 
+
+    List<User> getTroLysByKhoaId(long khoaId);
+            
     User addUser(User tk);
 
     boolean authenticate(String username, String password);

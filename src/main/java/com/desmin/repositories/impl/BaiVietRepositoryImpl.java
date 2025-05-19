@@ -5,6 +5,8 @@
 package com.desmin.repositories.impl;
 
 import com.desmin.pojo.BaiViet;
+import com.desmin.pojo.Comment;
+import com.desmin.pojo.Like;
 import com.desmin.repositories.BaiVietRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -104,4 +106,29 @@ public class BaiVietRepositoryImpl implements BaiVietRepository {
         return (BaiViet) query.getSingleResult();
 
     }
+@Override
+public List<Comment> getComments(long baivietId) {
+    Session s = this.factory.getObject().getCurrentSession();
+    CriteriaBuilder b = s.getCriteriaBuilder();
+    CriteriaQuery<Comment> q = b.createQuery(Comment.class);
+    Root<Comment> root = q.from(Comment.class);
+    q.select(root);
+    q.where(b.equal(root.get("baiViet").get("id"), baivietId));
+    Query query = s.createQuery(q);
+    return query.getResultList();
+}
+
+     @Override
+    public List<Like> getLikes(long baivietId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder b = s.getCriteriaBuilder();
+        CriteriaQuery<Like> q = b.createQuery(Like.class);
+        Root root = q.from(Like.class);
+        q.select(root);
+    q.where(b.equal(root.get("baiViet").get("id"), baivietId));
+        Query query = s.createQuery(q);
+        return query.getResultList();
+    }
+
+
 }

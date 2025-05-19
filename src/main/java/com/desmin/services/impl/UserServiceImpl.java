@@ -201,4 +201,8 @@ public class UserServiceImpl implements UserService {
                 return this.userRepo.getAllSinhVien(params);
 
     }
+    @Override
+    public List<User> getTroLysByKhoaId(long khoaId) {
+        return userRepo.getTroLysByKhoaId(khoaId);
+    }
 }

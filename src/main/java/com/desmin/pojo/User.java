@@ -93,6 +93,10 @@ public class User implements Serializable {
         SINH_VIEN, TRO_LY_SINH_VIEN, CVCTSV, ADMIN
     }
 
+      public User(){
+        
+    }
+    
     @PrePersist
     @PreUpdate
     public void validate() {

@@ -49,6 +49,11 @@ public class HoatDongNgoaiKhoa implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "han_dang_ky")
     private LocalDate hanDangKy;
+    
+    
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "ngay_dien_ra")
+    private LocalDate ngayDienRa;
 
     @ManyToOne
     @JoinColumn(name = "dieu_id", nullable = false)
@@ -74,6 +79,9 @@ public class HoatDongNgoaiKhoa implements Serializable {
     @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate = LocalDateTime.now();
 
+      public HoatDongNgoaiKhoa(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;
@@ -171,5 +179,19 @@ public class HoatDongNgoaiKhoa implements Serializable {
 
     public void setUpdatedDate(LocalDateTime updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    /**
+     * @return the ngayDienRa
+     */
+    public LocalDate getNgayDienRa() {
+        return ngayDienRa;
+    }
+
+    /**
+     * @param ngayDienRa the ngayDienRa to set
+     */
+    public void setNgayDienRa(LocalDate ngayDienRa) {
+        this.ngayDienRa = ngayDienRa;
     }
 }

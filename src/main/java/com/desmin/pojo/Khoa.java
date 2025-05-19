@@ -25,6 +25,9 @@ public class Khoa implements Serializable{
     @Column(nullable = false)
     private boolean active = true;
 
+      public Khoa(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;

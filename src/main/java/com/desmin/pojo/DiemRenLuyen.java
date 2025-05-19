@@ -59,6 +59,9 @@ public class DiemRenLuyen  implements Serializable{
     public enum XepLoai {
         XUAT_SAC, GIOI, KHA, TRUNG_BINH, YEU, KEM
     }
+      public DiemRenLuyen(){
+        
+    }
 
     @PrePersist
     @PreUpdate

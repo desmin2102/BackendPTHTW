@@ -33,6 +33,10 @@ public class DiemRenLuyenChiTiet  implements Serializable{
     @Column(nullable = false)
     private boolean active = true;
 
+    
+      public DiemRenLuyenChiTiet(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;

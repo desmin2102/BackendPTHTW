@@ -5,6 +5,8 @@
 package com.desmin.services;
 
 import com.desmin.pojo.BaiViet;
+import com.desmin.pojo.Comment;
+import com.desmin.pojo.Like;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,4 +28,9 @@ public interface BaiVietService {
     void deleteBaiViet(long id);
 
     BaiViet getBaiVietByHoatDongId(long hoatDongId);
+     List<Comment> getComments(long baivietId);
+          List<Like> getLikes(long baivietId);
+
+
+
 }

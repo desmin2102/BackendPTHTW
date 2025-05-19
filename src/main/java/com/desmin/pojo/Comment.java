@@ -22,6 +22,9 @@ public class Comment implements Serializable {
     @JoinColumn(name = "bai_viet_id", nullable = false)
     private BaiViet baiViet;
 
+      public Comment(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;

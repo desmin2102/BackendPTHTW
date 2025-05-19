@@ -70,7 +70,10 @@ public class ThamGia implements Serializable {
     @JsonIgnore
     private MinhChung minhChung;
 
-    
+      public ThamGia(){
+        
+    }
+     
     @PrePersist
     @PreUpdate
     public void validate() {

@@ -28,6 +28,9 @@ public class Lop implements Serializable {
     @Column(nullable = false)
     private boolean active = true;
 
+      public Lop(){
+        
+    }
     // Getters và Setters
     public Long getId() {
         return id;

@@ -30,5 +30,6 @@ public interface UserService extends UserDetailsService {
     boolean authenticate(String username, String password);
     
             List<User> getAllSinhVien(Map<String, String> params);
+            List<User> getTroLysByKhoaId(long khoaId);
 
 }
