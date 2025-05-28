@@ -82,6 +82,11 @@ public class UserServiceImpl implements UserService {
         User u = new User();
         u.setHo(params.get("ho"));
         u.setTen(params.get("ten"));
+        String email = params.get("email");
+        if (email == null || !email.endsWith("@ou.edu.vn")) {
+            throw new IllegalArgumentException("Email phải có đuôi @ou.edu.vn");
+        }
+        u.setEmail(email);
         u.setEmail(params.get("email"));
         u.setUsername(params.get("username"));
         u.setPassword(this.passwordEncoder.encode(params.get("password")));
@@ -122,6 +127,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addTroLySinhVien(Map<String, String> params, MultipartFile avatar) {
         User u = new User();
+        String email = params.get("email");
+        if (email == null || !email.endsWith("@ou.edu.vn")) {
+            throw new IllegalArgumentException("Email phải có đuôi @ou.edu.vn");
+        }
+        u.setEmail(email);
+
         u.setEmail(params.get("email"));
         u.setUsername(params.get("username"));
         u.setHo(params.get("ho"));
@@ -198,9 +209,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllSinhVien(Map<String, String> params) {
-                return this.userRepo.getAllSinhVien(params);
+        return this.userRepo.getAllSinhVien(params);
 
     }
+
     @Override
     public List<User> getTroLysByKhoaId(long khoaId) {
         return userRepo.getTroLysByKhoaId(khoaId);

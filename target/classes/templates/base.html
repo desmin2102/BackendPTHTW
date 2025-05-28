@@ -23,6 +23,7 @@
                 flex-shrink: 0;
                 text-align: center;
             }
+            
         </style>
     </th:block>
 </head>
@@ -39,14 +40,30 @@
                     <li class="nav-item" sec:authorize="isAnonymous()">
                         <a class="nav-link" th:href="@{/login}">Đăng nhập</a>
                     </li>
-                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
-                        <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/home}">Trang chủ</a>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
-                        <a class="nav-link" th:href="@{/thongke}">Thống kê</a>
+                        <a class="nav-link" th:href="@{/minh-chung}">Quản lý minh chứng</a>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
-                        <a class="nav-link" th:href="@{/taotroly}">Tạo trợ lý</a>
+                        <a class="nav-link" th:href="@{/hoat-dong}">Quản lý hoạt động</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/hoc-ky-nam-hoc}">Quản lý học kỳ</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/baiviets}">Quản lý bài viết</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/tlsv/create}">Tạo trợ lý</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/sinh-vien}">Quản lý sinh viên</a>
+                    </li>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('CVCTSV')">
+                        <a class="nav-link" th:href="@{/thong-ke}">Thống kê</a>
                     </li>
                     <li class="nav-item" sec:authorize="isAuthenticated()">
                         <a class="nav-link text-danger" th:href="@{/logout}">Đăng xuất</a>

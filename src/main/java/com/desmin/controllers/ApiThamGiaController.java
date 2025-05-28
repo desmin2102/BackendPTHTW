@@ -170,4 +170,9 @@ public class ApiThamGiaController {
         }
     }
     
+    
+     @GetMapping("/secure/thamgias")
+      public ResponseEntity<List<ThamGia>> list(@RequestParam Map<String, String> params) {
+        return new ResponseEntity<>(this.thamGiaService.getThamGias(params), HttpStatus.OK);
+    }
 }

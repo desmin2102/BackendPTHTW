@@ -7,13 +7,17 @@ package com.desmin.configs;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.desmin.filters.JwtFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -79,15 +84,13 @@ public class SpringSecurityConfigs {
                 ).permitAll()
                 // Role-based endpoints
                 .requestMatchers(HttpMethod.POST, "/api/secure/hdnks", "/api/secure/delete/{id}", "/api/secure/create",
-                         "/api/secure/diem-danh", "/api/secure/diem-danh-csv/{hoatDongId}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
+                         "/api/secure/diem-danh", "/api/secure/diem-danh-csv/{hoatDongId}","/api/secure/thong-ke").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
                 .requestMatchers(HttpMethod.DELETE, "/api/secure/delete/{id}").hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
-                .requestMatchers(HttpMethod.GET, "/api/secure/sinhviens", "/api/secure/export/csvdrl", "/api/secure/export/pdf",
+                .requestMatchers(HttpMethod.GET, "/api/secure/sinhviens", "/api/secure/export/csvdrl", "/api/secure/export/pdf","/api/secure/thong-ke",
                         "/api/secure/cho-duyet", "/api/secure/duyet/{minhChungId}", "api/secure/duyet/{minhChungId}", "/api/secure/export-csv/{hoatDongId}"
                 ).hasAnyRole("TRO_LY_SINH_VIEN", "CVCTSV")
                 .requestMatchers(HttpMethod.POST, "/api/secure/dangkys","/api/secure/bao-thieu/{thamGiaId}").hasRole("SINH_VIEN")
                                         .requestMatchers(HttpMethod.POST, "/api/secure/send").hasAnyRole("SINH_VIEN","TRO_LY_SINH_VIEN")
-
-                .requestMatchers(HttpMethod.POST, "/api/secure/tlsv", "/api/secure/cvctsv").hasRole("CVCTSV")
                 .requestMatchers(HttpMethod.GET, "/api/export/**").hasAnyRole("CVCTSV", "TRO_LY_SINH_VIEN")
                 .anyRequest().authenticated())
                 .formLogin(form -> form.loginPage("/login")
@@ -141,4 +144,29 @@ public class SpringSecurityConfigs {
         return source;
     }
 
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+    @Bean
+public JavaMailSender mailSender() {
+    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    mailSender.setHost("smtp.gmail.com");
+    mailSender.setPort(587);
+    mailSender.setUsername("waykute3vn@gmail.com");
+    mailSender.setPassword("athe tnkf ypho swzu");
+
+    Properties props = mailSender.getJavaMailProperties();
+    props.put("mail.transport.protocol", "smtp");
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.debug", "true"); // Tùy chọn: hiển thị log gửi mail
+
+    return mailSender;
+}
 }

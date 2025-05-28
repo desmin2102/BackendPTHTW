@@ -33,7 +33,7 @@ public class HoatDongNgoaiKhoaRepositoryImpl implements HoatDongNgoaiKhoaReposit
     @Autowired
     private LocalSessionFactoryBean factory;
 
-    @Override
+  @Override
     public List<HoatDongNgoaiKhoa> getHoatDongNgoaiKhoas(Map<String, String> params) {
         Session s = factory.getObject().getCurrentSession();
         CriteriaBuilder b = s.getCriteriaBuilder();
@@ -43,30 +43,33 @@ public class HoatDongNgoaiKhoaRepositoryImpl implements HoatDongNgoaiKhoaReposit
 
         Query query = s.createQuery(q);
 
-        // Áp dụng phân trang
-        if (params != null && params.containsKey("page")) {
-            try {
-                int page = Integer.parseInt(params.getOrDefault("page", "1"));
-                if (page < 1) {
-                    page = 1; // Đảm bảo page không nhỏ hơn 1
+        // Kiểm tra nếu params chứa "noPaging=true" thì không áp dụng phân trang
+        boolean noPaging = params != null && "true".equalsIgnoreCase(params.getOrDefault("noPaging", "false"));
+        if (!noPaging) {
+            // Áp dụng phân trang
+            if (params != null && params.containsKey("page")) {
+                try {
+                    int page = Integer.parseInt(params.getOrDefault("page", "1"));
+                    if (page < 1) {
+                        page = 1; // Đảm bảo page không nhỏ hơn 1
+                    }
+                    int start = (page - 1) * PAGE_SIZE;
+                    query.setMaxResults(PAGE_SIZE);
+                    query.setFirstResult(start);
+                } catch (NumberFormatException e) {
+                    // Nếu page không phải số hợp lệ, lấy trang 1
+                    query.setMaxResults(PAGE_SIZE);
+                    query.setFirstResult(0);
                 }
-                int start = (page - 1) * PAGE_SIZE;
-                query.setMaxResults(PAGE_SIZE);
-                query.setFirstResult(start);
-            } catch (NumberFormatException e) {
-                // Nếu page không phải số hợp lệ, lấy trang 1
+            } else {
+                // Mặc định lấy trang 1 nếu không có tham số page
                 query.setMaxResults(PAGE_SIZE);
                 query.setFirstResult(0);
             }
-        } else {
-            // Mặc định lấy trang 1 nếu không có tham số page
-            query.setMaxResults(PAGE_SIZE);
-            query.setFirstResult(0);
         }
 
         return query.getResultList();
     }
-
     @Transactional
     @Override
     public HoatDongNgoaiKhoa getHoatDongNgoaiKhoaById(long id) {

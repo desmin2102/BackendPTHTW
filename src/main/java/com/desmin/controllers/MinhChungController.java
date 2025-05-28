@@ -40,7 +40,7 @@ public class MinhChungController {
     private ThamGiaService thamGiaService;
 
     @GetMapping("/minh-chung")
-    @PreAuthorize("hasAnyRole('CVCTSV'")
+    @PreAuthorize("hasAnyRole('CVCTSV')")
     public String listMinhChung(Model model,
                                 @RequestParam(value = "keyword", required = false) String keyword) {
         try {
@@ -54,8 +54,7 @@ public class MinhChungController {
                 return "minh-chung-list";
             }
 
-          
-            List<MinhChung> minhChungs = minhChungService.getMinhChungByTrangThai(MinhChung.TrangThai.CHO_DUYET,null);
+            List<MinhChung> minhChungs = minhChungService.getMinhChungByTrangThai(MinhChung.TrangThai.CHO_DUYET, null);
 
             // Lấy danh sách hoatDongId từ minh chứng CHO_DUYET
             Set<Long> hoatDongIdsChoDuyet = new HashSet<>();
@@ -109,36 +108,48 @@ public class MinhChungController {
             return "minh-chung-list";
         }
     }
-    @GetMapping("/minh-chung/{id}")
-    @PreAuthorize("hasAnyRole('CVCTSV')")
-    public String showMinhChungDetail(@PathVariable("id") Long id, Model model) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            User currentUser = userService.getUserByUsername(username);
 
-            // Kiểm tra quyền truy cập
-            if (currentUser == null || (currentUser.getRole() != User.Role.CVCTSV && currentUser.getRole() != User.Role.TRO_LY_SINH_VIEN)) {
-                model.addAttribute("error", "Bạn không có quyền xem chi tiết minh chứng.");
-                return "minh-chung-detail";
-            }
+  @GetMapping("/minh-chung/{id}")
+@PreAuthorize("hasAnyRole('CVCTSV')")
+public String showMinhChungDetail(@PathVariable("id") Long id, Model model) {
+    try {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User currentUser = userService.getUserByUsername(username);
 
-            // Lấy chi tiết minh chứng
-            MinhChung minhChung = minhChungService.getMinhChungById(id);
-            if (minhChung == null) {
-                model.addAttribute("error", "Không tìm thấy minh chứng.");
-                return "minh-chung-detail";
-            }
-
-            // Truyền dữ liệu vào model
-            model.addAttribute("minhChung", minhChung);
-            model.addAttribute("isTroLySinhVien", currentUser.getRole() == User.Role.TRO_LY_SINH_VIEN);
-            return "minh-chung-detail";
-        } catch (Exception e) {
-            model.addAttribute("error", "Lỗi khi lấy chi tiết minh chứng: " + e.getMessage());
+        // Kiểm tra quyền truy cập
+        if (currentUser == null || (currentUser.getRole() != User.Role.CVCTSV && currentUser.getRole() != User.Role.TRO_LY_SINH_VIEN)) {
+            model.addAttribute("error", "Bạn không có quyền xem chi tiết minh chứng.");
             return "minh-chung-detail";
         }
+
+        // Lấy chi tiết minh chứng
+        MinhChung minhChung = minhChungService.getMinhChungById(id);
+        if (minhChung == null) {
+            model.addAttribute("error", "Không tìm thấy minh chứng.");
+            return "minh-chung-detail";
+        }
+
+        // Thêm log để debug
+        System.out.println("MinhChung loaded: " + minhChung);
+        System.out.println("TrangThai: " + minhChung.getTrangThai());
+
+        // Định nghĩa ánh xạ trạng thái
+        Map<MinhChung.TrangThai, String> trangThaiMap = new HashMap<>();
+        trangThaiMap.put(MinhChung.TrangThai.CHO_DUYET, "Chờ duyệt");
+        trangThaiMap.put(MinhChung.TrangThai.DA_DUYET, "Đã duyệt");
+        trangThaiMap.put(MinhChung.TrangThai.TU_CHOI, "Từ chối");
+
+        // Truyền dữ liệu vào model
+        model.addAttribute("minhChung", minhChung);
+        model.addAttribute("trangThaiMap", trangThaiMap);
+        model.addAttribute("isTroLySinhVien", currentUser.getRole() == User.Role.TRO_LY_SINH_VIEN);
+        return "minh-chung-detail";
+    } catch (Exception e) {
+        model.addAttribute("error", "Lỗi khi lấy chi tiết minh chứng: " + e.getMessage());
+        return "minh-chung-detail";
     }
+}
 
     @PostMapping("/minh-chung/duyet/{id}")
     @PreAuthorize("hasAnyRole('CVCTSV')")

@@ -11,7 +11,8 @@
             <button onclick="history.back()" class="btn btn-secondary mb-3">« Quay lại</button>
 
             <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
-            <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${actionSuccess != null}" class="alert alert-success" th:text="${actionSuccess}"></div>
+            <div th:if="${actionError != null}" class="alert alert-danger" th:text="${actionError}"></div>
 
             <div th:if="${minhChung != null}" class="card">
                 <img th:if="${minhChung.anhMinhChung != null}" th:src="${minhChung.anhMinhChung}" alt="Minh chứng" class="card-img-top" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/400'" />
@@ -24,7 +25,7 @@
                     </p>
                     <p class="card-text">
                         <strong>Sinh viên:</strong>
-                        <span th:text="${minhChung.thamGia?.sinhVien?.ho} + ' ' + ${minhChung.thamGia?.sinhVien?.ten}"></span>
+                        <span th:text="${minhChung.thamGia?.sinhVien?.ho} + ' ' + ${minhChung.thamGia?.sinhVien?.ten} ?: 'N/A'"></span>
                     </p>
                     <p class="card-text">
                         <strong>Khoa:</strong>
@@ -36,24 +37,23 @@
                     </p>
                     <p class="card-text">
                         <strong>Trạng thái:</strong>
-                        <span th:text="${trangThaiMap.get(minhChung.trangThai)} ?: minhChung.trangThai"></span>
+                        <span th:text="${trangThaiMap[minhChung.trangThai] ?: minhChung.trangThai?.toString() ?: 'Chưa xác định'}"></span>
                     </p>
 
-                    <div th:if="${minhChung.trangThai == 'CHO_DUYET'}">
+                    <div th:if="${minhChung.trangThai == T(com.desmin.pojo.MinhChung$TrangThai).CHO_DUYET}">
                         <div class="mb-3">
                             <label for="lyDoTuChoi" class="form-label">Lý do từ chối (nếu có):</label>
                             <textarea class="form-control" id="lyDoTuChoi" name="lyDoTuChoi" rows="3" placeholder="Nhập lý do từ chối..."></textarea>
                         </div>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-3">
-                        <form th:action="@{/minh-chung/duyet/{id}(id=${minhChung.id})}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-success" th:disabled="${minhChung.trangThai != 'CHO_DUYET'}">Duyệt</button>
-                        </form>
-                        <form th:action="@{/minh-chung/tu-choi/{id}(id=${minhChung.id})}" method="post" style="display: inline;">
-                            <input type="hidden" name="lyDoTuChoi" th:value="${lyDoTuChoi}" />
-                            <button type="submit" class="btn btn-danger" th:disabled="${minhChung.trangThai != 'CHO_DUYET'}">Từ chối</button>
-                        </form>
+                        <div class="d-flex gap-2 mt-3">
+                            <form th:action="@{/minh-chung/duyet/{id}(id=${minhChung.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-success" th:disabled="${minhChung.trangThai != T(com.desmin.pojo.MinhChung$TrangThai).CHO_DUYET}">Duyệt</button>
+                            </form>
+                            <form th:action="@{/minh-chung/tu-choi/{id}(id=${minhChung.id})}" method="post" style="display: inline;" onsubmit="document.getElementById('lyDoTuChoiHidden').value = document.getElementById('lyDoTuChoi').value;">
+                                <input type="hidden" id="lyDoTuChoiHidden" name="lyDoTuChoi" value="" />
+                                <button type="submit" class="btn btn-danger" th:disabled="${minhChung.trangThai != T(com.desmin.pojo.MinhChung$TrangThai).CHO_DUYET}">Từ chối</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

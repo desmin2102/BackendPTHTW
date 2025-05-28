@@ -18,5 +18,5 @@ public interface DiemRenLuyenService {
         List<DiemRenLuyen> getDiemRenLuyenTongHop(Long khoaId, Long lopId, String xepLoai, Long hkNhId, int page, int size);
   byte[] exportDiemRenLuyenToCsv(Long khoaId, Long lopId, String xepLoai, Long hkNhId);
     byte[] exportDiemRenLuyenToPdf(Long khoaId, Long lopId, String xepLoai, Long hkNhId);
-
+List<Map<String, Object>> thongKeDiemRenLuyen(Long khoaId, Long lopId, String xepLoai, Long hkNhId);
 }

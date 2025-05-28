@@ -35,6 +35,7 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.font.constants.StandardFonts;
+import java.util.ArrayList;
 
 
 @Service
@@ -334,4 +335,65 @@ public class DiemRenLuyenServiceImpl implements DiemRenLuyenService {
             throw new RuntimeException("Lỗi khi tạo file PDF: " + e.getMessage(), e);
         }
     }
+@Override
+public List<Map<String, Object>> thongKeDiemRenLuyen(Long khoaId, Long lopId, String xepLoai, Long hkNhId) {
+    try {
+        // Lấy danh sách điểm rèn luyện
+        List<DiemRenLuyen> danhSach = diemRenLuyenRepository.getAllDiemRenLuyenTongHop(khoaId, lopId, xepLoai, hkNhId);
+        if (danhSach.isEmpty()) {
+            logger.info("No data found for statistics with parameters: khoaId={}, lopId={}, xepLoai={}, hkNhId={}",
+                    khoaId, lopId, xepLoai, hkNhId);
+            return new ArrayList<>(); // Trả về danh sách rỗng thay vì ném lỗi
+        }
+
+        // Lấy danh sách Điều
+        List<Dieu> dieuList = dieuRepository.getDieus(null);
+
+        // Tạo danh sách kết quả
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (DiemRenLuyen drl : danhSach) {
+            User sv = drl.getSinhVien();
+            HocKyNamHoc hkRow = drl.getHkNh();
+
+            // Định dạng học kỳ - năm học
+            String hocKy = hkRow.getHocKy() == HocKyNamHoc.HocKy.ONE ? "Học kỳ 1"
+                    : hkRow.getHocKy() == HocKyNamHoc.HocKy.TWO ? "Học kỳ 2" : "Học kỳ 3";
+            String hocKyNamHoc = hocKy + " - " + hkRow.getNamHoc();
+
+            // Lấy thông tin lớp và khoa
+            String tenLop = sv.getLop() != null ? sv.getLop().getTenLop() : "";
+            String tenKhoa = sv.getLop() != null && sv.getLop().getKhoa() != null
+                    ? sv.getLop().getKhoa().getTenKhoa() : "";
+
+            // Lấy điểm chi tiết từng Điều
+            Map<Long, Integer> diemMap = drl.getChiTiet().stream()
+                    .filter(ct -> ct.getDieu() != null)
+                    .collect(Collectors.toMap(
+                            ct -> ct.getDieu().getId(),
+                            DiemRenLuyenChiTiet::getDiem,
+                            (d1, d2) -> d1
+                    ));
+
+            // Tạo Map cho mỗi hàng dữ liệu
+            Map<String, Object> row = new HashMap<>();
+            row.put("ho", sv.getHo() != null ? sv.getHo() : "");
+            row.put("ten", sv.getTen() != null ? sv.getTen() : "");
+            row.put("mssv", sv.getMssv() != null ? sv.getMssv() : "");
+            row.put("hocKyNamHoc", hocKyNamHoc);
+            row.put("khoa", tenKhoa);
+            row.put("lop", tenLop);
+            row.put("diemTong", drl.getDiemTong());
+            row.put("xepLoai", drl.getXepLoai() != null ? drl.getXepLoai() : "");
+            row.put("diemChiTiet", diemMap);
+
+            result.add(row);
+        }
+
+        return result;
+    } catch (Exception e) {
+        logger.error("Error generating statistics: {}", e.getMessage(), e);
+        throw new RuntimeException("Lỗi khi tạo thống kê điểm rèn luyện: " + e.getMessage(), e);
+    }
 }
+}
+    

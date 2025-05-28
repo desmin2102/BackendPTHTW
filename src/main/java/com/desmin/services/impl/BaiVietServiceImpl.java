@@ -10,9 +10,11 @@ import com.desmin.pojo.BaiViet;
 import com.desmin.pojo.Comment;
 import com.desmin.pojo.HoatDongNgoaiKhoa;
 import com.desmin.pojo.Like;
+import com.desmin.pojo.ThongBao;
 import com.desmin.pojo.User;
 import com.desmin.repositories.BaiVietRepository;
 import com.desmin.repositories.HoatDongNgoaiKhoaRepository;
+import com.desmin.repositories.ThongBaoRepository;
 import com.desmin.repositories.UserRepository;
 import com.desmin.services.BaiVietService;
 import java.io.IOException;
@@ -22,6 +24,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,8 +46,12 @@ public class BaiVietServiceImpl implements BaiVietService {
     @Autowired
     private HoatDongNgoaiKhoaRepository hdnkRepo;
     @Autowired
+    private ThongBaoRepository thongBaoRepo;
+    @Autowired
     private Cloudinary cloudinary;
-
+    @Autowired
+    private JavaMailSender mailSender;
+    
     @Override
     public List<BaiViet> getAllBaiViet(Map<String, String> params) {
         return baiVietRepo.getAllBaiViet(params);
@@ -52,6 +61,7 @@ public class BaiVietServiceImpl implements BaiVietService {
     public BaiViet getBaiVietById(long id) {
         return this.baiVietRepo.getBaiVietById(id);
     }
+
 
     @Override
     public BaiViet addBaiViet(Map<String, String> params, MultipartFile imageFile) {
@@ -86,7 +96,36 @@ public class BaiVietServiceImpl implements BaiVietService {
             }
 
             // Lưu bài viết vào DB
-            return this.baiVietRepo.addBaiViet(baiViet);
+            BaiViet savedBaiViet = this.baiVietRepo.addBaiViet(baiViet);
+
+                     // Tạo thông báo và gửi email cho từng sinh viên
+            List<User> sinhViens = this.userRepo.findAllSinhVien();
+            for (User sinhVien : sinhViens) {
+                // Tạo thông báo
+                ThongBao thongBao = new ThongBao();
+                thongBao.setNoiDung("Bài viết mới: " + savedBaiViet.getTitle());
+                thongBao.setCreatedDate(LocalDateTime.now());
+                thongBao.setUser(sinhVien); // Gán user là sinh viên
+                thongBaoRepo.save(thongBao);
+
+                // Gửi email
+                if (sinhVien.getEmail() != null && !sinhVien.getEmail().isEmpty()) {
+                    try {
+                        SimpleMailMessage message = new SimpleMailMessage();
+                        message.setTo(sinhVien.getEmail());
+                        message.setSubject("Thông báo bài viết mới");
+                        message.setText("Bài viết mới: " + savedBaiViet.getTitle() + "\nNội dung: " + savedBaiViet.getContent());
+                        mailSender.send(message);
+                    } catch (MailException ex) {
+                        Logger.getLogger(BaiVietServiceImpl.class.getName()).log(Level.SEVERE, 
+                            "Lỗi khi gửi email đến " + sinhVien.getEmail(), ex);
+                        // Không ném exception để tiếp tục với sinh viên khác
+                    }
+                }
+            }
+
+
+            return savedBaiViet;
         } catch (Exception ex) {
             Logger.getLogger(BaiVietServiceImpl.class.getName()).log(Level.SEVERE, "Error when creating BaiViet", ex);
             throw new RuntimeException("Lỗi khi tạo bài viết: " + ex.getMessage(), ex);
@@ -110,13 +149,13 @@ public class BaiVietServiceImpl implements BaiVietService {
 
     @Override
     public List<Comment> getComments(long baivietId) {
-                return this.baiVietRepo.getComments(baivietId);
+        return this.baiVietRepo.getComments(baivietId);
 
     }
 
-     @Override
+    @Override
     public List<Like> getLikes(long baivietId) {
-                return this.baiVietRepo.getLikes(baivietId);
+        return this.baiVietRepo.getLikes(baivietId);
 
     }
 }

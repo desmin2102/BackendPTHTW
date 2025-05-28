@@ -1,6 +1,8 @@
 com\desmin\controllers\ApiBaiVietController.class
 com\desmin\repositories\impl\CommentRepositoryImpl.class
 com\desmin\services\DiemRenLuyenChiTietService.class
+com\desmin\controllers\ThongKeController.class
+com\desmin\services\impl\ThongBaoServiceImpl.class
 com\desmin\services\HocKyNamHocService.class
 com\desmin\controllers\ApiLopController.class
 com\desmin\services\impl\MessageServiceImpl$1.class
@@ -26,12 +28,16 @@ com\desmin\services\impl\DiemRenLuyenChiTietServiceImpl.class
 com\desmin\services\MessageService.class
 com\desmin\controllers\IndexController.class
 com\desmin\services\KhoaService.class
+com\desmin\controllers\ApiThongBaoController.class
 com\desmin\configs\WebAppContextConfigs.class
 com\desmin\services\impl\CommentServiceImpl.class
 com\desmin\controllers\ApiMinhChungController.class
+com\desmin\services\ThongBaoService.class
+com\desmin\services\RasaService.class
 com\desmin\controllers\ApiThamGiaController.class
 com\desmin\services\LikeService.class
 com\desmin\services\UserService.class
+com\desmin\services\impl\RasaServiceImpl.class
 com\desmin\repositories\MessageRepository.class
 com\desmin\repositories\impl\DieuRepositoryImpl.class
 com\desmin\pojo\HocKyNamHoc$HocKy.class
@@ -47,11 +53,13 @@ com\desmin\services\impl\UserServiceImpl.class
 com\desmin\repositories\CommentRepository.class
 com\desmin\repositories\DiemRenLuyenChiTietRepository.class
 com\desmin\repositories\ChatRoomRepository.class
+com\desmin\controllers\HocKyNamHocController.class
 com\desmin\controllers\ApiUserController.class
 com\desmin\repositories\impl\UserRepositoryImpl.class
 com\desmin\services\impl\BaiVietServiceImpl.class
 com\desmin\services\impl\HocKyNamHocServiceImpl.class
 com\desmin\repositories\impl\BaiVietRepositoryImpl.class
+com\desmin\controllers\DieuController.class
 com\desmin\repositories\impl\KhoaRepositoryImpl.class
 com\desmin\controllers\ApiHocKyNamHocController.class
 com\desmin\pojo\DiemRenLuyen.class
@@ -61,7 +69,9 @@ com\desmin\pojo\HocKyNamHoc.class
 com\desmin\controllers\UserController.class
 com\desmin\pojo\ChatRoom.class
 com\desmin\configs\DispatcherServletInit.class
+com\desmin\controllers\SinhVienController.class
 com\desmin\repositories\impl\LopRepositoryImpl.class
+com\desmin\repositories\impl\ThongBaoRepositoryImpl.class
 com\desmin\pojo\Tag.class
 com\desmin\pojo\Khoa.class
 com\desmin\repositories\BaiVietRepository.class
@@ -81,6 +91,8 @@ com\desmin\services\impl\DiemRenLuyenServiceImpl.class
 com\desmin\services\MinhChungService.class
 com\desmin\controllers\ApiCommentController.class
 com\desmin\services\impl\MessageServiceImpl.class
+com\desmin\repositories\ThongBaoRepository.class
+com\desmin\controllers\HoatDongController.class
 com\desmin\services\impl\DieuServiceImpl.class
 com\desmin\filters\JwtFilter.class
 com\desmin\configs\SecurityWebApplicationInitializer.class
@@ -88,7 +100,9 @@ com\desmin\quanlydiemrenluyen\JakartaRestConfiguration.class
 com\desmin\pojo\MinhChung$TrangThai.class
 com\desmin\services\impl\KhoaServiceImpl.class
 com\desmin\repositories\UserRepository.class
+com\desmin\controllers\TroLySinhVienController.class
 com\desmin\repositories\ThamGiaRepository.class
+com\desmin\pojo\ThongBao.class
 com\desmin\repositories\HocKyNamHocRepository.class
 com\desmin\pojo\Message.class
 com\desmin\services\DieuService.class
@@ -106,6 +120,7 @@ com\desmin\pojo\ThamGia.class
 com\desmin\configs\SpringSecurityConfigs.class
 com\desmin\pojo\User$Role.class
 com\desmin\repositories\impl\DiemRenLuyenRepositoryImpl.class
+com\desmin\controllers\MinhChungController.class
 com\desmin\repositories\LopRepository.class
 com\desmin\services\impl\ThamGiaServiceImpl.class
 com\desmin\repositories\KhoaRepository.class

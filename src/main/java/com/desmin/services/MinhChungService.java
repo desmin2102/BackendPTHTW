@@ -12,5 +12,5 @@ public interface MinhChungService {
     List<MinhChung> getMinhChungByTrangThai(MinhChung.TrangThai trangThai, Map<String, String> params);
     List<MinhChung> getMinhChungByTrangThaiAndKhoa(MinhChung.TrangThai trangThai, Long khoaId, Map<String, String> params);
   void approveMinhChung(Long minhChungId);
-    void rejectMinhChung(Long minhChungId);
+    void rejectMinhChung(Long minhChungId, String lyDoTuChoi);
 }

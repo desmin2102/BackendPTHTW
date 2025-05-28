@@ -62,13 +62,20 @@ public class ApiMinhChungController {
         }
     }
 
+ 
     @PutMapping("/secure/tu-choi/{minhChungId}")
-    public ResponseEntity<Void> tuChoiMinhChung(@PathVariable("minhChungId") Long minhChungId) {
+    public ResponseEntity<?> tuChoiMinhChung(
+            @PathVariable("minhChungId") Long minhChungId,
+            @RequestBody String lyDoTuChoi) {
         try {
-            minhChungService.rejectMinhChung(minhChungId);
+            minhChungService.rejectMinhChung(minhChungId, lyDoTuChoi);
             return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.status(500).body(Map.of("error", "Lỗi hệ thống: " + ex.getMessage()));
         }
     }
     

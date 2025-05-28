@@ -9,6 +9,7 @@ import com.desmin.pojo.User;
 import com.desmin.repositories.ChatRoomRepository;
 import com.desmin.repositories.MessageRepository;
 import com.desmin.services.MessageService;
+import com.desmin.services.RasaService;
 import com.desmin.services.UserService;
 import com.google.firebase.database.*;
 import java.io.IOException;
@@ -33,6 +34,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional
 @Service
 public class MessageServiceImpl implements MessageService {
+
+    @Autowired
+    private RasaService rasaService;
 
     @Autowired
     private MessageRepository messageRepository;
@@ -179,7 +183,7 @@ public class MessageServiceImpl implements MessageService {
                 }
 
                 if (!anyTroLyOnline[0]) {
-                    String botResponse = getBotResponse(content);
+                    String botResponse = rasaService.getRasaResponse(content, sender.getId().toString());
                     Message botMessage = new Message(chatRoomToUse, null, botResponse, null, "TEXT", true);
                     botMessage = messageRepository.save(botMessage);
 
@@ -210,7 +214,4 @@ public class MessageServiceImpl implements MessageService {
         return messageRepository.findByRoomId(roomId);
     }
 
-    private String getBotResponse(String userMessage) {
-        return "Chatbot: Tôi đang thay thế trợ lý. Câu hỏi của bạn là: " + userMessage;
-    }
 }

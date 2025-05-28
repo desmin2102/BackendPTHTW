@@ -180,4 +180,44 @@ public ResponseEntity<List<DiemRenLuyen>> getDiems(@RequestParam Map<String, Str
         }
         return false;
     }
+    
+@GetMapping("/secure/thong-ke")
+public ResponseEntity<?> thongKeDiemRenLuyen(
+        @RequestParam(name = "khoaId", required = false) Long khoaId,
+        @RequestParam(name = "lopId", required = false) Long lopId,
+        @RequestParam(name = "xepLoai", required = false) String xepLoai,
+        @RequestParam(name = "hkNhId", required = false) Long hkNhId) {
+    try {
+        logger.info("Statistics request: khoaId={}, lopId={}, xepLoai={}, hkNhId={}",
+                khoaId, lopId, xepLoai, hkNhId);
+
+        // Kiểm tra xepLoai hợp lệ
+        if (xepLoai != null && !isValidXepLoai(xepLoai)) {
+            logger.warn("Invalid xepLoai: {}", xepLoai);
+            return ResponseEntity.badRequest()
+                    .body("Lỗi: Xếp loại không hợp lệ.");
+        }
+
+        // Gọi service để lấy thống kê
+        List<Map<String, Object>> thongKeData = diemRenLuyenService.thongKeDiemRenLuyen(khoaId, lopId, xepLoai, hkNhId);
+
+        // Nếu không có dữ liệu, trả về thông điệp thân thiện
+        if (thongKeData.isEmpty()) {
+            logger.info("No data found for statistics with given parameters");
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Không có dữ liệu phù hợp");
+            response.put("data", thongKeData);
+            return ResponseEntity.ok(response);
+        }
+
+        return new ResponseEntity<>(thongKeData, HttpStatus.OK);
+    } catch (Exception e) {
+        logger.error("Error generating statistics: {}", e.getMessage(), e);
+        return ResponseEntity.badRequest()
+                .body("Lỗi server khi tạo thống kê: " + e.getMessage());
+    }
+}
+
+
+    
 }
