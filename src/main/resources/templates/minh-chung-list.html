@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Danh sách minh chứng chờ duyệt</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-success mt-3 mb-4">Danh sách minh chứng chờ duyệt</h1>
+
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+
+            <div th:if="${hoatDongDataList == null or hoatDongDataList.isEmpty()}" class="alert alert-info">
+                Không có hoạt động nào có minh chứng báo thiếu và chờ duyệt.
+            </div>
+
+            <div th:if="${hoatDongDataList != null and !hoatDongDataList.isEmpty()}">
+                <div th:each="hoatDongData, iterStat : ${hoatDongDataList}">
+                    <div class="card mb-5">
+                        <div class="card-body">
+                            <h3 class="text-primary mb-4" th:text="${hoatDongData.hoatDong.tenHoatDong}"></h3>
+
+                            <!-- Hiển thị danh sách minh chứng CHO_DUYET của hoạt động này -->
+                            <div th:if="${hoatDongData.minhChungs.isEmpty()}" class="alert alert-info">
+                                Không có minh chứng chờ duyệt cho hoạt động này.
+                            </div>
+                            <div th:if="${!hoatDongData.minhChungs.isEmpty()}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                <div th:each="item : ${hoatDongData.minhChungs}" class="col">
+                                    <div class="card h-100">
+                                        <img th:if="${item.anhMinhChung != null}" th:src="${item.anhMinhChung}" alt="Minh chứng" class="card-img-top" style="height: 200px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/200'" />
+                                        <img th:unless="${item.anhMinhChung != null}" src="https://via.placeholder.com/200" alt="Không có hình ảnh" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                                        <div class="card-body">
+                                            <h5 class="card-title" th:text="${hoatDongData.hoatDong.tenHoatDong}"></h5>
+                                            <p class="card-text" th:text="${item.description != null ? (item.description.length() > 100 ? item.description.substring(0, 100) + '...' : item.description) : 'Không có mô tả'}"></p>
+                                            <p class="card-text">
+                                                <strong>Sinh viên:</strong>
+                                                <span th:text="${item.thamGia?.sinhVien?.ho} + ' ' + ${item.thamGia?.sinhVien?.ten}"></span>
+                                            </p>
+                                            <a th:href="@{/minh-chung/{id}(id=${item.id})}" class="btn btn-primary">Xem chi tiết</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr th:if="${iterStat.index < hoatDongDataList.size() - 1}" class="my-4" />
+                </div>
+                <div class="text-center mt-4">
+                    <button onclick="history.back()" class="btn btn-secondary">Quay lại</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

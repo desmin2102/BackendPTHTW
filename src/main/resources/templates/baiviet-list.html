@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title th:text="'Quản lý bài viết'"></title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Quản lý bài viết</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${message != null}" class="alert alert-success" th:text="${message}"></div>
+            <a th:href="@{/baiviets/create}" class="btn btn-primary mb-3">Tạo bài viết mới</a>
+            <div th:if="${baiViets == null or baiViets.isEmpty()}" class="alert alert-info">
+                Không có bài viết nào.
+            </div>
+            <div th:if="${baiViets != null and !baiViets.isEmpty()}">
+                <div th:each="baiViet : ${baiViets}" class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${baiViet.title}"></h5>
+                        <p class="card-text" th:text="${baiViet.content}"></p>
+                        <div th:if="${baiViet.hoatDongNgoaiKhoa != null}">
+                            <p><strong>Hoạt động:</strong> <span th:text="${baiViet.hoatDongNgoaiKhoa.tenHoatDong}"></span></p>
+                            
+                        </div>
+                        <a th:href="@{/baiviets/{id}(id=${baiViet.id})}" class="btn btn-info">Xem chi tiết</a>
+                        <form th:action="@{/baiviets/delete/{id}(id=${baiViet.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Xóa</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/baiviets(page=${currentPage - 1})}">Trước</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/baiviets(page=${currentPage + 1})}">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý học kỳ/năm học</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Danh sách học kỳ/năm học</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <a th:href="@{/hoc-ky-nam-hoc/create}" class="btn btn-primary mb-3">Tạo học kỳ/năm học mới</a>
+            <div th:if="${hocKyNamHocs == null or hocKyNamHocs.isEmpty()}" class="alert alert-info">
+                Không có học kỳ/năm học nào.
+            </div>
+            <table th:if="${hocKyNamHocs != null and !hocKyNamHocs.isEmpty()}" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Học kỳ</th>
+                        <th>Năm học</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Ngày kết thúc</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="hocKyNamHoc : ${hocKyNamHocs}">
+                        <td th:text="${hocKyNamHoc.id}"></td>
+                        <td th:text="${hocKyNamHoc.hocKy}"></td>
+                        <td th:text="${hocKyNamHoc.namHoc}"></td>
+                        <td th:text="${hocKyNamHoc.startDate}"></td>
+                        <td th:text="${hocKyNamHoc.endDate}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

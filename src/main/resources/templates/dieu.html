@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý tiêu chí</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Danh sách tiêu chí (Điều)</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${dieus == null or dieus.isEmpty()}" class="alert alert-info">
+                Không có tiêu chí nào.
+            </div>
+            <table th:if="${dieus != null and !dieus.isEmpty()}" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên tiêu chí</th>
+                        <th>Điểm tối đa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="dieu : ${dieus}">
+                        <td th:text="${dieu.id}"></td>
+                        <td th:text="${dieu.tenDieu}"></td>
+                        <td th:text="${dieu.diemToiDa}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

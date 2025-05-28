@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách báo thiếu của sinh viên</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Danh sách báo thiếu của sinh viên</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+
+            <h3 th:text="'Sinh viên: ' + ${sinhVien.ho} + ' ' + ${sinhVien.ten}"></h3>
+            <div th:if="${minhChungList == null || minhChungList.isEmpty()}" class="alert alert-warning">
+                Sinh viên chưa có yêu cầu báo thiếu nào.
+            </div>
+
+            <table class="table table-bordered" th:if="${minhChungList != null && !minhChungList.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Hoạt động</th>
+                        <th>Mô tả</th>
+                        <th>Minh chứng</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="minhChung : ${minhChungList}">
+                        <td th:text="${minhChung.thamGia.hoatDongNgoaiKhoa.tenHoatDong} ?: 'N/A'"></td>
+                        <td th:text="${minhChung.description} ?: 'Không có mô tả'"></td>
+                        <td>
+                            <a th:if="${minhChung.anhMinhChung != null}" th:href="${minhChung.anhMinhChung}" target="_blank">Xem minh chứng</a>
+                            <span th:if="${minhChung.anhMinhChung == null}">Không có minh chứng</span>
+                        </td>
+                        <td th:text="${minhChung.trangThai} ?: 'Chưa xác định'"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <a th:href="@{/sinh-vien}" class="btn btn-primary">Quay lại</a>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

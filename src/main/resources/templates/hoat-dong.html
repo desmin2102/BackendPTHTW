@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý hoạt động ngoại khóa</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Danh sách hoạt động ngoại khóa</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <a th:href="@{/hoat-dong/create}" class="btn btn-primary mb-3">Tạo hoạt động mới</a>
+            <div th:if="${hoatDongs == null or hoatDongs.isEmpty()}" class="alert alert-info">
+                Không có hoạt động nào.
+            </div>
+            <table th:if="${hoatDongs != null and !hoatDongs.isEmpty()}" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên hoạt động</th>
+                        <th>Mô tả</th>
+                        <th>Điểm rèn luyện</th>
+                        <th>Hạn đăng ký</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="hoatDong : ${hoatDongs}">
+                        <td th:text="${hoatDong.id}"></td>
+                        <td th:text="${hoatDong.tenHoatDong}"></td>
+                        <td th:text="${hoatDong.description}"></td>
+                        <td th:text="${hoatDong.diemRenLuyen}"></td>
+                        <td th:text="${hoatDong.hanDangKy}"></td>
+                        <td>
+                            <a th:href="@{/hoat-dong/{id}/tham-gia(id=${hoatDong.id})}" class="btn btn-info">Nạp danh sách SV </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/hoat-dong(page=${currentPage - 1})}">Trước</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/hoat-dong(page=${currentPage + 1})}">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

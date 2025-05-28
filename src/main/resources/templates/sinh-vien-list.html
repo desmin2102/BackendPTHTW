@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách sinh viên</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Danh sách sinh viên</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${sinhVienList == null || sinhVienList.isEmpty()}" class="alert alert-warning">
+                Không có sinh viên nào trong hệ thống.
+            </div>
+
+            <table class="table table-bordered" th:if="${sinhVienList != null && !sinhVienList.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>MSSV</th>
+                        <th>Họ</th>
+                        <th>Tên</th>
+                        <th>Tên Khoa</th>
+                        <th>Tên Lớp</th>
+                        <th>Thành tích ngoại khóa</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sinhVien : ${sinhVienList}">
+                        <td th:text="${sinhVien.mssv} ?: 'N/A'"></td>
+                        <td th:text="${sinhVien.ho} ?: 'N/A'"></td>
+                        <td th:text="${sinhVien.ten} ?: 'N/A'"></td>
+                        <td th:text="${sinhVien.lop?.khoa?.tenKhoa} ?: 'Chưa gán khoa'"></td>
+                        <td th:text="${sinhVien.lop?.tenLop} ?: 'Chưa gán lớp'"></td>
+                        <td>
+                            <a th:href="@{/sinh-vien/{id}/thanh-tich(id=${sinhVien.id})}" class="btn btn-info">Xem thành tích</a>
+                        </td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách sinh viên tham gia</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Danh sách sinh viên tham gia</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${message != null}" class="alert alert-success" th:text="${message}"></div>
+            <div th:if="${thamGias == null or thamGias.isEmpty()}" class="alert alert-info">
+                Không có sinh viên nào tham gia.
+            </div>
+            <table th:if="${thamGias != null and !thamGias.isEmpty()}" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Sinh viên</th>
+                        <th>Hoạt động</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="thamGia : ${thamGias}">
+                        <td th:text="${thamGia.id}"></td>
+                        <td th:text="${thamGia.sinhVien?.fullName}"></td>
+                        <td th:text="${thamGia.hoatDongNgoaiKhoa?.tenHoatDong}"></td>
+                        <td th:text="${thamGia.state}"></td>
+                        <td>
+                            <form th:action="@{/hoat-dong/diem-danh}" method="post" style="display:inline;">
+                                <input type="hidden" name="sinhVienId" th:value="${thamGia.sinhVien?.id}" />
+                                <input type="hidden" name="hoatDongId" th:value="${thamGia.hoatDongNgoaiKhoa?.id}" />
+                                <button type="submit" class="btn btn-success">Điểm danh</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <form th:action="@{/api/secure/diem-danh-csv/{hoatDongId}(hoatDongId=${hoatDongId})}" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label>Điểm danh bằng CSV</label>
+                    <input type="file" class="form-control" name="file" accept=".csv" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Điểm danh</button>
+            </form>
+            <a th:href="@{/api/secure/export-csv/{hoatDongId}(hoatDongId=${hoatDongId})}" class="btn btn-success">Xuất danh sách CSV</a>
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/hoat-dong/{id}/tham-gia(id=${hoatDongId},page=${currentPage - 1})}">Trước</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{/hoat-dong/{id}/tham-gia(id=${hoatDongId},page=${currentPage + 1})}">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

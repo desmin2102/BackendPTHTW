@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Chi tiết minh chứng</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container mt-4">
+            <button onclick="history.back()" class="btn btn-secondary mb-3">« Quay lại</button>
+
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+
+            <div th:if="${minhChung != null}" class="card">
+                <img th:if="${minhChung.anhMinhChung != null}" th:src="${minhChung.anhMinhChung}" alt="Minh chứng" class="card-img-top" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/400'" />
+                <img th:unless="${minhChung.anhMinhChung != null}" src="https://via.placeholder.com/400" alt="Không có hình ảnh" class="card-img-top" style="max-height: 400px; object-fit: contain;" />
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${minhChung.thamGia?.hoatDongNgoaiKhoa?.tenHoatDong} ?: 'N/A'"></h5>
+                    <p class="card-text">
+                        <strong>Mô tả minh chứng:</strong>
+                        <span th:text="${minhChung.description} ?: 'Không có mô tả'"></span>
+                    </p>
+                    <p class="card-text">
+                        <strong>Sinh viên:</strong>
+                        <span th:text="${minhChung.thamGia?.sinhVien?.ho} + ' ' + ${minhChung.thamGia?.sinhVien?.ten}"></span>
+                    </p>
+                    <p class="card-text">
+                        <strong>Khoa:</strong>
+                        <span th:text="${minhChung.thamGia?.sinhVien?.lop?.khoa?.tenKhoa} ?: 'N/A'"></span>
+                    </p>
+                    <p class="card-text">
+                        <strong>Điểm rèn luyện:</strong>
+                        <span th:text="${minhChung.thamGia?.hoatDongNgoaiKhoa?.diemRenLuyen} ?: 'N/A'"></span>
+                    </p>
+                    <p class="card-text">
+                        <strong>Trạng thái:</strong>
+                        <span th:text="${trangThaiMap.get(minhChung.trangThai)} ?: minhChung.trangThai"></span>
+                    </p>
+
+                    <div th:if="${minhChung.trangThai == 'CHO_DUYET'}">
+                        <div class="mb-3">
+                            <label for="lyDoTuChoi" class="form-label">Lý do từ chối (nếu có):</label>
+                            <textarea class="form-control" id="lyDoTuChoi" name="lyDoTuChoi" rows="3" placeholder="Nhập lý do từ chối..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <form th:action="@{/minh-chung/duyet/{id}(id=${minhChung.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-success" th:disabled="${minhChung.trangThai != 'CHO_DUYET'}">Duyệt</button>
+                        </form>
+                        <form th:action="@{/minh-chung/tu-choi/{id}(id=${minhChung.id})}" method="post" style="display: inline;">
+                            <input type="hidden" name="lyDoTuChoi" th:value="${lyDoTuChoi}" />
+                            <button type="submit" class="btn btn-danger" th:disabled="${minhChung.trangThai != 'CHO_DUYET'}">Từ chối</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title th:text="'Chi tiết bài viết'"></title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container">
+            <h1 class="text-center text-info mt-3">Chi tiết bài viết</h1>
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${message != null}" class="alert alert-success" th:text="${message}"></div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${baiViet.title}"></h5>
+                    <p class="card-text" th:text="${baiViet.content}"></p>
+                    <div th:if="${baiViet.imageUrl != null}">
+                        <img th:src="${baiViet.imageUrl}" alt="Hình ảnh bài viết" class="img-fluid mb-3" style="max-width: 100%;">
+                    </div>
+                    <div th:if="${hoatDong != null}">
+                        <p><strong>Hoạt động:</strong> <span th:text="${hoatDong.tenHoatDong}"></span></p>
+                        <p><strong>Điều:</strong> <span th:text="${hoatDong.dieu != null ? hoatDong.dieu.tenDieu : 'Không có'}"></span></p>
+                        <p><strong>Mô tả:</strong> <span th:text="${hoatDong.description != null ? hoatDong.description : 'Không có mô tả'}"></span></p>
+                        <p><strong>Ngày diễn ra:</strong> <span th:text="${hoatDong.ngayDienRa}"></span></p>
+                        <p><strong>Hạn đăng ký:</strong> <span th:text="${hoatDong.hanDangKy}"></span></p>
+                        <p><strong>Điểm rèn luyện:</strong> <span th:text="${hoatDong.diemRenLuyen}"></span></p>
+                        
+                    </div>
+                    <a th:href="@{/home}" class="btn btn-secondary mt-3">Quay lại</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>
