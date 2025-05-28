@@ -33,39 +33,38 @@ public class BaiVietRepositoryImpl implements BaiVietRepository {
     @Autowired
     private LocalSessionFactoryBean factory;
 
-    @Override
-    public List<BaiViet> getAllBaiViet(Map<String, String> params) {
-        Session s = factory.getObject().getCurrentSession();
-        CriteriaBuilder b = s.getCriteriaBuilder();
-        CriteriaQuery<BaiViet> q = b.createQuery(BaiViet.class);
-        Root<BaiViet> root = q.from(BaiViet.class);
-        q.select(root);
+ @Override
+public List<BaiViet> getAllBaiViet(Map<String, String> params) {
+    Session s = factory.getObject().getCurrentSession();
+    CriteriaBuilder b = s.getCriteriaBuilder();
+    CriteriaQuery<BaiViet> q = b.createQuery(BaiViet.class);
+    Root<BaiViet> root = q.from(BaiViet.class);
+    q.select(root);
 
-        Query query = s.createQuery(q);
+    Query query = s.createQuery(q);
 
-        // Áp dụng phân trang
-        if (params != null && params.containsKey("page")) {
-            try {
-                int page = Integer.parseInt(params.getOrDefault("page", "1"));
-                if (page < 1) {
-                    page = 1; // Đảm bảo page không nhỏ hơn 1
-                }
-                int start = (page - 1) * PAGE_SIZE;
-                query.setMaxResults(PAGE_SIZE);
-                query.setFirstResult(start);
-            } catch (NumberFormatException e) {
-                // Nếu page không phải số hợp lệ, lấy trang 1
-                query.setMaxResults(PAGE_SIZE);
-                query.setFirstResult(0);
+    // Kiểm tra nếu params chứa "noPaging=true" thì không áp dụng phân trang
+    boolean noPaging = params != null && "true".equalsIgnoreCase(params.getOrDefault("noPaging", "false"));
+
+    // Áp dụng phân trang chỉ khi có tham số "page" và không có "noPaging=true"
+    if (params != null && params.containsKey("page") && !noPaging) {
+        try {
+            int page = Integer.parseInt(params.getOrDefault("page", "1"));
+            if (page < 1) {
+                page = 1; // Đảm bảo page không nhỏ hơn 1
             }
-        } else {
-            // Mặc định lấy trang 1 nếu không có tham số page
+            int start = (page - 1) * PAGE_SIZE;
+            query.setMaxResults(PAGE_SIZE);
+            query.setFirstResult(start);
+        } catch (NumberFormatException e) {
+            // Nếu page không phải số hợp lệ, lấy trang 1
             query.setMaxResults(PAGE_SIZE);
             query.setFirstResult(0);
         }
-
-        return query.getResultList();
     }
+
+    return query.getResultList();
+}
 
     @Override
     public BaiViet getBaiVietById(long id) {

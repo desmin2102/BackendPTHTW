@@ -16,12 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
+import org.springframework.web.bind.annotation.PutMapping;
 
 /**
  *
@@ -71,5 +70,38 @@ public class ApiThongBaoController {
         }
     }
 
+    // Thêm endpoint để đánh dấu thông báo là đã đọc
+    @PutMapping("/secure/thong-bao/{thongBaoId}/read")
+    public ResponseEntity<?> markAsRead(@PathVariable(value = "thongBaoId") long id, Principal principal) {
+        try {
+            // Kiểm tra xem principal có hợp lệ không
+            if (principal == null || principal.getName() == null) {
+                return ResponseEntity.status(401).body(Map.of("error", "Chưa đăng nhập"));
+            }
+
+            // Lấy user từ username
+            User user = userService.getUserByUsername(principal.getName());
+            if (user == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "Không tìm thấy người dùng"));
+            }
+
+            // Kiểm tra thông báo có tồn tại không
+            ThongBao thongBao = thongBaoService.getThongBaoById(id);
+            if (thongBao == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "Không tìm thấy thông báo"));
+            }
+
+            // Kiểm tra quyền truy cập: chỉ cho phép user liên quan đánh dấu thông báo
+            if (thongBao.getUser() != null && !thongBao.getUser().getId().equals(user.getId())) {
+                return ResponseEntity.status(403).body(Map.of("error", "Không có quyền đánh dấu thông báo này"));
+            }
+
+            // Đánh dấu thông báo là đã đọc
+            thongBaoService.markThongBaoAsRead(id);
+            return ResponseEntity.ok(Map.of("message", "Đánh dấu thông báo đã đọc thành công"));
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("error", "Lỗi hệ thống: " + ex.getMessage()));
+        }
+    }
   
 }

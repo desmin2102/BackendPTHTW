@@ -49,4 +49,12 @@ public class ThongBaoServiceImpl implements ThongBaoService {
         thongBao.setUser(null); // null để gửi đến tất cả
         thongBaoRepo.save(thongBao);
     }
+    @Override
+    public void markThongBaoAsRead(long id) {
+        ThongBao thongBao = getThongBaoById(id);
+        if (thongBao != null && !thongBao.isRead()) {
+            thongBao.setRead(true);
+            thongBaoRepo.save(thongBao);
+        }
+    }
 }

@@ -18,4 +18,5 @@ public interface ThongBaoService {
     ThongBao getThongBaoById(long id);
     List<ThongBao> getThongBaosByUserOrPublic(User user);
     void thongBaoHoatDongMoi(String noiDung);
+    void markThongBaoAsRead(long id); // Thêm phương thức này
 }
