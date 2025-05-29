@@ -1,55 +1,256 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Thống kê điểm rèn luyện</title>
-    <th:block th:replace="~{base :: styles}"></th:block>
+        <th:block th:replace="~{base :: styles}"></th:block>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .chart-container > div {
+            width: 45%;
+            height: 200px;
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
-    <div class="content">
-        <main class="container">
-            <h1 class="text-center text-info mt-3">Thống kê điểm rèn luyện</h1>
-            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+<div class="container mt-5">
+    <h1 class="text-center text-success mb-4">Thống kê điểm rèn luyện</h1>
 
-            <!-- Thống kê theo khoa -->
-            <h3>Thống kê theo khoa</h3>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Khoa</th>
-                        <th>Số sinh viên</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="entry : ${thongKeTheoKhoa.entrySet()}">
-                        <td th:text="${entry.key}"></td>
-                        <td th:text="${entry.value}"></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Thống kê theo thành tích -->
-            <h3>Thống kê theo thành tích</h3>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Thành tích</th>
-                        <th>Số sinh viên</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="entry : ${thongKeTheoThanhTich.entrySet()}">
-                        <td th:text="${entry.key}"></td>
-                        <td th:text="${entry.value}"></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Nút xuất PDF/CSV -->
-            <a th:href="@{/api/secure/export/pdf}" class="btn btn-primary">Xuất PDF</a>
-            <a th:href="@{/api/secure/export/csv}" class="btn btn-success">Xuất CSV</a>
-        </main>
+    <!-- Hiển thị thông báo lỗi -->
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <span th:text="${error}"></span>
     </div>
+
+    <!-- Hiển thị thông báo khi không có dữ liệu -->
+    <div th:if="${message}" class="alert alert-info" role="alert">
+        <span th:text="${message}"></span>
+    </div>
+
+    <!-- Form lọc -->
+    <form id="filterForm" th:action="@{/thong-ke}" method="get" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="khoaId" class="form-label">Khoa</label>
+                <select id="khoaId" name="khoaId" class="form-select" onchange="updateLopOptions()">
+                    <option value="">Tất cả khoa</option>
+                    <option th:each="khoa : ${khoaList}" th:value="${khoa.id}" th:text="${khoa.tenKhoa}"
+                            th:selected="${filters.khoaId == khoa.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="lopId" class="form-label">Lớp</label>
+                <select id="lopId" name="lopId" class="form-select" onchange="this.form.submit()">
+                    <option value="">Tất cả lớp</option>
+                    <option th:each="lop : ${lopList}" th:value="${lop.id}" th:text="${lop.tenLop}"
+                            th:selected="${filters.lopId == lop.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="xepLoai" class="form-label">Xếp loại</label>
+                <select id="xepLoai" name="xepLoai" class="form-select" onchange="this.form.submit()">
+                    <option value="">Tất cả xếp loại</option>
+                    <option value="XUAT_SAC" th:selected="${filters.xepLoai == 'XUAT_SAC'}">Xuất sắc</option>
+                    <option value="GIOI" th:selected="${filters.xepLoai == 'GIOI'}">Giỏi</option>
+                    <option value="KHA" th:selected="${filters.xepLoai == 'KHA'}">Khá</option>
+                    <option value="TRUNG_BINH" th:selected="${filters.xepLoai == 'TRUNG_BINH'}">Trung bình</option>
+                    <option value="YEU" th:selected="${filters.xepLoai == 'YEU'}">Yếu</option>
+                    <option value="KEM" th:selected="${filters.xepLoai == 'KEM'}">Kém</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="hkNhId" class="form-label">Học kỳ - Năm học</label>
+                <select id="hkNhId" name="hkNhId" class="form-select" onchange="this.form.submit()">
+                    <option th:each="hk : ${hocKyList}" th:value="${hk.id}"
+                            th:text="${hk.hocKyHienThi + ' - ' + hk.namHoc}"
+                            th:selected="${filters.hkNhId == hk.id}"></option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <!-- Nút xuất CSV và PDF -->
+    <div class="d-flex gap-4 mb-6">
+        <a th:href="@{/thong-ke/export/csv(khoaId=${filters.khoaId},lopId=${filters.lopId},xepLoai=${filters.xepLoai != null and filters.xepLoai != '' ? filters.xepLoai : ''},hkNhId=${filters.hkNhId})}"
+           class="btn btn-primary" th:if="${thongKeData != null and !thongKeData.isEmpty()}">Xuất CSV</a>
+        <a th:href="@{/thong-ke/export/pdf(khoaId=${filters.khoaId},lopId=${filters.lopId},xepLoai=${filters.xepLoai != null and filters.xepLoai != '' ? filters.xepLoai : ''},hkNhId=${filters.hkNhId})}"
+           class="btn btn-success" th:if="${thongKeData != null and !thongKeData.isEmpty()}">Xuất PDF</a>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div th:if="${thongKeData != null and !thongKeData.isEmpty()}" class="chart-container mb-6">
+        <div>
+            <canvas id="pieChart"></canvas>
+        </div>
+        <div>
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Bảng dữ liệu thống kê -->
+    <div th:if="${thongKeData != null and !thongKeData.isEmpty()}" class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-success">
+            <tr>
+                <th>#</th>
+                <th>Họ tên</th>
+                <th>MSSV</th>
+                <th>Lớp</th>
+                <th>Học kỳ - Năm học</th>
+                <th>Điểm tổng</th>
+                <th>Xếp loại</th>
+                <th th:each="dieu : ${dieuList}" th:text="${dieu.tenDieu}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, iterStat : ${thongKeData}">
+                <td th:text="${iterStat.count}"></td>
+                <td th:text="${item.ho + ' ' + item.ten}"></td>
+                <td th:text="${item.mssv}"></td>
+                <td th:text="${item.lop}"></td>
+                <td th:text="${item.hocKyNamHoc}"></td>
+                <td th:text="${item.diemTong}"></td>
+                <td th:text="${item.xepLoai}"></td>
+                <td th:each="dieu : ${dieuList}"
+                    th:text="${item.diemChiTiet != null and item.diemChiTiet[dieu.id] != null} ? ${item.diemChiTiet[dieu.id]} : '-'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
     <div th:replace="~{base :: footer}"></div>
+
+<script>
+    // Tự động submit form khi thay đổi select (trừ khoaId vì cần cập nhật lớp)
+    document.querySelectorAll('select:not(#khoaId)').forEach(select => {
+        select.addEventListener('change', () => {
+            document.getElementById('filterForm').submit();
+        });
+    });
+
+    // Cập nhật danh sách lớp khi thay đổi khoa
+    function updateLopOptions() {
+        const khoaId = document.getElementById('khoaId').value;
+        const lopSelect = document.getElementById('lopId');
+
+        // Xóa các tùy chọn lớp hiện tại
+        lopSelect.innerHTML = '<option value="">Tất cả lớp</option>';
+
+        // Nếu không chọn khoa, giữ nguyên danh sách lớp hiện tại
+        if (!khoaId) {
+            document.getElementById('filterForm').submit();
+            return;
+        }
+
+        // Gửi yêu cầu AJAX để lấy danh sách lớp theo khoa
+        fetch(`/api/lops?khoaId=${khoaId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(lop => {
+                    const option = document.createElement('option');
+                    option.value = lop.id;
+                    option.textContent = lop.tenLop;
+                    lopSelect.appendChild(option);
+                });
+                // Sau khi cập nhật lớp, submit form
+                document.getElementById('filterForm').submit();
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách lớp:', error);
+                document.getElementById('filterForm').submit();
+            });
+    }
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script  th:inline="javascript">
+    // Vẽ Pie Chart
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Xuất sắc', 'Giỏi', 'Khá', 'Trung bình', 'Yếu', 'Kém'],
+            datasets: [{
+                label: 'Số lượng sinh viên',
+                data: [[${pieData}]],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.6)',
+                    'rgba(0, 123, 255, 0.6)',
+                    'rgba(23, 162, 184, 0.6)',
+                    'rgba(255, 193, 7, 0.6)',
+                    'rgba(220, 53, 69, 0.6)',
+                    'rgba(108, 117, 125, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(0, 123, 255, 1)',
+                    'rgba(23, 162, 184, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(220, 53, 69, 1)',
+                    'rgba(108, 117, 125, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Phân bố xếp loại điểm rèn luyện' },
+                datalabels: {
+                    color: '#fff',
+                    formatter: (value) => (value > 0 ? value : ''),
+                    font: { weight: 'bold' }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    // Vẽ Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: [[${lopLabels}]],
+            datasets: [{
+                label: 'Điểm tổng trung bình',
+                data: [[${lopAverages}]],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Điểm tổng trung bình theo lớp' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: { display: true, text: 'Điểm trung bình' }
+                },
+                x: {
+                    title: { display: true, text: 'Lớp' }
+                }
+            }
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

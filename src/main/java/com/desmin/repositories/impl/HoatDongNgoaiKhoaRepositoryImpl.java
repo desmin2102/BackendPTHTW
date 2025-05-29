@@ -5,13 +5,14 @@
 package com.desmin.repositories.impl;
 
 import com.desmin.pojo.HoatDongNgoaiKhoa;
-import com.desmin.pojo.User;
 import com.desmin.repositories.HoatDongNgoaiKhoaRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
@@ -32,38 +33,59 @@ public class HoatDongNgoaiKhoaRepositoryImpl implements HoatDongNgoaiKhoaReposit
 
     @Autowired
     private LocalSessionFactoryBean factory;
-@Override
-public List<HoatDongNgoaiKhoa> getHoatDongNgoaiKhoas(Map<String, String> params) {
-    Session s = factory.getObject().getCurrentSession();
-    CriteriaBuilder b = s.getCriteriaBuilder();
-    CriteriaQuery<HoatDongNgoaiKhoa> q = b.createQuery(HoatDongNgoaiKhoa.class);
-    Root<HoatDongNgoaiKhoa> root = q.from(HoatDongNgoaiKhoa.class);
-    q.select(root);
 
-    Query query = s.createQuery(q);
+    @Override
+    public List<HoatDongNgoaiKhoa> getHoatDongNgoaiKhoas(Map<String, String> params) {
+        Session s = factory.getObject().getCurrentSession();
+        CriteriaBuilder b = s.getCriteriaBuilder();
+        CriteriaQuery<HoatDongNgoaiKhoa> q = b.createQuery(HoatDongNgoaiKhoa.class);
+        Root<HoatDongNgoaiKhoa> root = q.from(HoatDongNgoaiKhoa.class);
+        q.select(root);
 
-    // Kiểm tra nếu params chứa "noPaging=true" thì không áp dụng phân trang
-    boolean noPaging = params != null && "true".equalsIgnoreCase(params.getOrDefault("noPaging", "false"));
-    
-    // Áp dụng phân trang chỉ khi có tham số "page" và không có "noPaging=true"
-    if (params != null && params.containsKey("page") && !noPaging) {
-        try {
-            int page = Integer.parseInt(params.getOrDefault("page", "1"));
-            if (page < 1) {
-                page = 1; // Đảm bảo page không nhỏ hơn 1
+        // Xây dựng điều kiện WHERE
+        List<Predicate> predicates = new ArrayList<>();
+
+        // Lọc theo hknhId nếu có trong params
+        if (params != null && params.containsKey("hknhId")) {
+            try {
+                long hknhId = Long.parseLong(params.get("hknhId"));
+                predicates.add(b.equal(root.get("hkNh").get("id"), hknhId));
+            } catch (NumberFormatException e) {
+                // Nếu hknhId không hợp lệ, ghi log và bỏ qua điều kiện này
+                System.err.println("Invalid hknhId format: " + params.get("hknhId"));
             }
-            int start = (page - 1) * PAGE_SIZE;
-            query.setMaxResults(PAGE_SIZE);
-            query.setFirstResult(start);
-        } catch (NumberFormatException e) {
-            // Nếu page không phải số hợp lệ, lấy trang 1
-            query.setMaxResults(PAGE_SIZE);
-            query.setFirstResult(0);
         }
+
+        // Áp dụng các điều kiện vào truy vấn
+        if (!predicates.isEmpty()) {
+            q.where(predicates.toArray(new Predicate[0]));
+        }
+
+        Query query = s.createQuery(q);
+
+        // Kiểm tra nếu params chứa "noPaging=true" thì không áp dụng phân trang
+        boolean noPaging = params != null && "true".equalsIgnoreCase(params.getOrDefault("noPaging", "false"));
+
+        // Áp dụng phân trang chỉ khi có tham số "page" và không có "noPaging=true"
+        if (params != null && params.containsKey("page") && !noPaging) {
+            try {
+                int page = Integer.parseInt(params.getOrDefault("page", "1"));
+                if (page < 1) {
+                    page = 1; // Đảm bảo page không nhỏ hơn 1
+                }
+                int start = (page - 1) * PAGE_SIZE;
+                query.setMaxResults(PAGE_SIZE);
+                query.setFirstResult(start);
+            } catch (NumberFormatException e) {
+                // Nếu page không phải số hợp lệ, lấy trang 1
+                query.setMaxResults(PAGE_SIZE);
+                query.setFirstResult(0);
+            }
+        }
+
+        return query.getResultList();
     }
 
-    return query.getResultList();
-}
     @Transactional
     @Override
     public HoatDongNgoaiKhoa getHoatDongNgoaiKhoaById(long id) {
@@ -94,8 +116,6 @@ public List<HoatDongNgoaiKhoa> getHoatDongNgoaiKhoas(Map<String, String> params)
         session.flush();
     }
 
-   
-
     @Override
     public HoatDongNgoaiKhoa addHoatDongNgoaiKhoa(HoatDongNgoaiKhoa h) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -103,6 +123,5 @@ public List<HoatDongNgoaiKhoa> getHoatDongNgoaiKhoas(Map<String, String> params)
 
         return h;
     }
-
 
 }

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết thành tích</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+    <!-- Thêm thư viện Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container { height: 400px; margin-bottom: 2rem; }
+        .table-section { margin-bottom: 2rem; }
+        .raw-data { margin: 1rem 0; padding: 1rem; background: #f8f9fa; border: 1px solid #dee2e6; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <div class="content">
+        <main class="container mt-4">
+            <h1 class="text-center text-success mb-4">Chi tiết thành tích</h1>
+
+            <!-- Thông tin sinh viên -->
+            <div th:if="${sinhVien != null}" class="mb-4">
+                <h3 th:text="'Sinh viên: ' + ${sinhVien.ho} + ' ' + ${sinhVien.ten}"></h3>
+                <p><strong>MSSV:</strong> <span th:text="${sinhVien.mssv} ?: 'N/A'"></span></p>
+            </div>
+
+
+            <!-- Biểu đồ tiêu chí đánh giá -->
+            <div th:if="${diemChiTietList != null and !diemChiTietList.isEmpty()}">
+                <h3 class="mt-4">Biểu đồ tiêu chí đánh giá</h3>
+                <div class="chart-container">
+                    <canvas id="diemChart"></canvas>
+                </div>
+            </div>
+            <div th:if="${diemChiTietList == null or diemChiTietList.isEmpty()}" class="alert alert-info">
+                Không có chi tiết điểm rèn luyện nào.
+            </div>
+
+            <!-- Danh sách tham gia đã điểm danh -->
+            <h3 class="mt-2">Danh sách tham gia hoạt động ngoại khóa đã điểm danh</h3>
+            <div th:if="${diemDanhList != null and !diemDanhList.isEmpty()}">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tên hoạt động</th>
+                            <th>Điểm cộng</th>
+                            <th>Điều</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="thamGia, iterStat : ${diemDanhList}">
+                            <td th:text="${iterStat.count}"></td>
+                            <td th:text="${thamGia.hoatDongNgoaiKhoa.tenHoatDong} ?: 'Không xác định'"></td>
+                            <td th:text="${thamGia.hoatDongNgoaiKhoa.diemRenLuyen} ?: 0"></td>
+                            <td th:text="${thamGia.hoatDongNgoaiKhoa.dieu?.tenDieu} ?: 'Không xác định'"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${diemDanhList == null or diemDanhList.isEmpty()}" class="alert alert-info">
+                Không có tham gia hoạt động ngoại khóa đã điểm danh.
+            </div>
+
+            <!-- Danh sách tham gia đã đăng ký hoặc báo thiếu -->
+            <h3 class="mt-2">Danh sách tham gia hoạt động ngoại khóa đã đăng ký hoặc báo thiếu</h3>
+            <div th:if="${dangKyOrBaoThieuList != null and !dangKyOrBaoThieuList.isEmpty()}">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tên hoạt động</th>
+                            <th>Điểm cộng</th>
+                            <th>Điều</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="thamGia, iterStat : ${dangKyOrBaoThieuList}">
+                            <td th:text="${iterStat.count}"></td>
+                            <td th:text="${thamGia.hoatDongNgoaiKhoa.tenHoatDong} ?: 'Không xác định'"></td>
+                            <td th:text="${thamGia.hoatDongNgoaiKhoa.diemRenLuyen} ?: 0"></td>
+                            <td th:text="${thamGia.hoatDongNgoaiKhoa.dieu?.tenDieu} ?: 'Không xác định'"></td>
+                            <td th:text="${thamGia.state.name}"></td>
+                            <td>
+                                <a th:if="${thamGia.state.name == 'DangKy' or thamGia.state.name == 'BaoThieu'}"
+                                   th:href="@{/bao-thieu/{id}(id=${thamGia.id})}"
+                                   class="btn btn-outline-primary btn-sm">Báo thiếu</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${dangKyOrBaoThieuList == null or dangKyOrBaoThieuList.isEmpty()}" class="alert alert-info">
+                Không có tham gia hoạt động ngoại khóa đã đăng ký hoặc báo thiếu.
+            </div>
+
+            <div class="text-center mt-4">
+                <a th:href="@{/sinh-vien/thanh-tich(sinhVienId=${sinhVien.id})}" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </main>
+    </div>
+    <div th:replace="~{base :: footer}"></div>
+    <script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        // Dữ liệu cho biểu đồ
+        const chartData = {
+            labels: [
+                /*[# th:each="diem : ${diemChiTietList}"]*/
+                "[[${diem.dieu?.tenDieu ?: 'Không xác định'}]]",
+                /*[/]*/
+            ],
+            datasets: [
+                {
+                    label: 'Điểm tối đa',
+                    data: [
+                        /*[# th:each="diem : ${diemChiTietList}"]*/
+                        [[${diem.dieu?.diemToiDa ?: 0}]],
+                        /*[/]*/
+                    ],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Điểm đạt được',
+                    data: [
+                        /*[# th:each="diem : ${diemChiTietList}"]*/
+                        [[${diem.diem ?: 0}]],
+                        /*[/]*/
+                    ],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        console.log('Chart Data:', JSON.stringify(chartData, null, 2));
+
+        // Tùy chọn cho biểu đồ
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: 'Biểu đồ điểm tối đa và điểm đạt được theo tiêu chí đánh giá'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Điểm' }
+                },
+                x: {
+                    title: { display: true, text: 'Tiêu chí đánh giá' }
+                }
+            }
+        };
+
+        // Vẽ biểu đồ
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const ctx = document.getElementById('diemChart')?.getContext('2d');
+                if (!ctx) {
+                    console.error('Canvas element #diemChart not found');
+                    return;
+                }
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: chartOptions
+                });
+            } catch (error) {
+                console.error('Error rendering chart:', error);
+            }
+        });
+    </script><script th:inline="javascript">
+    /*<![CDATA[*/
+    const chartData = {
+        labels: [
+            /*[# th:each="diem : ${diemChiTietList}"]*/
+            [[${'"' + diem.dieu?.tenDieu + '"' }]], 
+            /*[/]*/
+        ],
+        datasets: [
+            {
+                label: 'Điểm tối đa',
+                data: [
+                    /*[# th:each="diem : ${diemChiTietList}"]*/
+                    [[${diem.dieu?.diemToiDa ?: 0}]],
+                    /*[/]*/
+                ],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Điểm đạt được',
+                data: [
+                    /*[# th:each="diem : ${diemChiTietList}"]*/
+                    [[${diem.diem ?: 0}]],
+                    /*[/]*/
+                ],
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }
+        ]
+    };
+    /*]]>*/
+
+    console.log('Chart Data:', JSON.stringify(chartData, null, 2));
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top' },
+            title: {
+                display: true,
+                text: 'Biểu đồ điểm tối đa và điểm đạt được theo tiêu chí đánh giá'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `${context.dataset.label}: ${context.raw}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: 'Điểm' }
+            },
+            x: {
+                title: { display: true, text: 'Tiêu chí đánh giá' }
+            }
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const ctx = document.getElementById('diemChart')?.getContext('2d');
+            if (!ctx) {
+                console.error('Canvas element #diemChart not found');
+                return;
+            }
+            new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: chartOptions
+            });
+        } catch (error) {
+            console.error('Error rendering chart:', error);
+        }
+    });
+</script>
+
+</body>
+</html> 

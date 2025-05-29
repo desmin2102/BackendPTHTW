@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional
 public class ThamGiaRepositoryImpl implements ThamGiaRepository {
 
-    private static final int PAGE_SIZE = 5;
+    private static final int PAGE_SIZE = 3;
     @Autowired
     private UserRepository userRepository;
 
@@ -57,13 +57,7 @@ public class ThamGiaRepositoryImpl implements ThamGiaRepository {
 
         Query<ThamGia> q = session.createQuery(query);
 
-        // Phân trang
-        if (params != null && params.containsKey("page")) {
-            int page = Integer.parseInt(params.getOrDefault("page", "1"));
-            int start = (page - 1) * PAGE_SIZE;
-            q.setFirstResult(start);
-            q.setMaxResults(PAGE_SIZE);
-        }
+       
 
         return q.getResultList();
     }
@@ -75,13 +69,7 @@ public class ThamGiaRepositoryImpl implements ThamGiaRepository {
         Query<ThamGia> query = session.createNamedQuery("ThamGia.findBySinhVienId", ThamGia.class);
         query.setParameter("sinhVienId", sinhVienId);
 
-        // Phân trang
-        if (params != null && params.containsKey("page")) {
-            int page = Integer.parseInt(params.getOrDefault("page", "1"));
-            int start = (page - 1) * PAGE_SIZE;
-            query.setFirstResult(start);
-            query.setMaxResults(PAGE_SIZE);
-        }
+        
 
         return query.getResultList();
     }
@@ -93,13 +81,6 @@ public class ThamGiaRepositoryImpl implements ThamGiaRepository {
         Query<ThamGia> query = session.createNamedQuery("ThamGia.findByHoatDongNgoaiKhoaId", ThamGia.class);
         query.setParameter("hoatDongId", hoatDongId);
 
-        // Phân trang
-        if (params != null && params.containsKey("page")) {
-            int page = Integer.parseInt(params.getOrDefault("page", "1"));
-            int start = (page - 1) * PAGE_SIZE;
-            query.setFirstResult(start);
-            query.setMaxResults(PAGE_SIZE);
-        }
 
         return query.getResultList();
     }
@@ -255,26 +236,7 @@ public class ThamGiaRepositoryImpl implements ThamGiaRepository {
         // Tạo query
         Query<ThamGia> q = session.createQuery(query);
 
-        // Áp dụng phân trang
-        if (params != null && params.containsKey("page")) {
-            try {
-                int page = Integer.parseInt(params.getOrDefault("page", "1"));
-                if (page < 1) {
-                    page = 1; // Đảm bảo page không nhỏ hơn 1
-                }
-                int start = (page - 1) * PAGE_SIZE;
-                q.setMaxResults(PAGE_SIZE);
-                q.setFirstResult(start);
-            } catch (NumberFormatException e) {
-                // Nếu page không phải số hợp lệ, lấy trang 1
-                q.setMaxResults(PAGE_SIZE);
-                q.setFirstResult(0);
-            }
-        } else {
-            // Mặc định lấy trang 1 nếu không có tham số page
-            q.setMaxResults(PAGE_SIZE);
-            q.setFirstResult(0);
-        }
+       
 
         return q.getResultList();
     }

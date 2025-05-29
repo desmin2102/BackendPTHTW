@@ -1,113 +1,81 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Thành tích ngoại khóa</title>
+    <title>Danh sách điểm rèn luyện</title>
     <th:block th:replace="~{base :: styles}"></th:block>
-    <style>
-        .content {
-            padding: 20px;
-        }
-        .table th, .table td {
-            vertical-align: middle;
-            text-align: center;
-        }
-        .table th {
-            background-color: #f8f9fa;
-        }
-        .btn-report {
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-        .alert-warning {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
     <div class="content">
-        <main class="container">
-            <h1 class="text-center text-info mt-3">Thành tích ngoại khóa của sinh viên</h1>
-            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+        <main class="container mt-4">
+            <h1 class="text-center text-success mb-4">Danh sách điểm rèn luyện</h1>
 
             <!-- Thông tin sinh viên -->
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h3 class="card-title">Thông tin sinh viên</h3>
-                    <p><strong>MSSV:</strong> <span th:text="${sinhVien.mssv} ?: 'N/A'"></span></p>
-                    <p><strong>Họ:</strong> <span th:text="${sinhVien.ho} ?: 'N/A'"></span></p>
-                    <p><strong>Tên:</strong> <span th:text="${sinhVien.ten} ?: 'N/A'"></span></p>
-                    <p><strong>Khoa:</strong> <span th:text="${sinhVien.lop?.khoa?.tenKhoa} ?: 'Chưa gán khoa'"></span></p>
-                    <p><strong>Lớp:</strong> <span th:text="${sinhVien.lop?.tenLop} ?: 'Chưa gán lớp'"></span></p>
-                </div>
+            <div th:if="${sinhVien != null}" class="mb-4">
+                <h3 th:text="'Sinh viên: ' + ${sinhVien.ho} + ' ' + ${sinhVien.ten}"></h3>
+                <p><strong>MSSV:</strong> <span th:text="${sinhVien.mssv} ?: 'N/A'"></span></p>
             </div>
 
-            <!-- Danh sách hoạt động đã điểm danh -->
-            <h3>Danh sách tham gia hoạt động ngoại khóa đã điểm danh</h3>
-            <div th:if="${diemDanhList == null || diemDanhList.isEmpty()}" class="alert alert-warning">
-                Sinh viên chưa tham gia hoạt động ngoại khóa nào đã điểm danh.
-            </div>
-            <table class="table table-bordered" th:if="${diemDanhList != null && !diemDanhList.isEmpty()}">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Tên hoạt động</th>
-                        <th>Điểm cộng</th>
-                        <th>Điều</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="thamGia, iterStat : ${diemDanhList}">
-                        <td th:text="${iterStat.count}"></td>
-                        <td th:text="${thamGia.hoatDongNgoaiKhoa?.tenHoatDong} ?: 'N/A'"></td>
-                        <td th:text="${thamGia.hoatDongNgoaiKhoa?.diemRenLuyen} ?: '0'"></td>
-                        <td th:text="${thamGia.hoatDongNgoaiKhoa?.dieu?.tenDieu} ?: 'Không có điều'"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="text-center">
-                <button class="btn btn-outline-primary">«</button>
-                <button class="btn btn-primary">1</button>
-                <button class="btn btn-outline-primary">»</button>
+            <!-- Thông báo lỗi -->
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+
+            <!-- Bảng điểm rèn luyện -->
+            <div th:if="${diemRenLuyenList != null and !diemRenLuyenList.isEmpty()}">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Năm học</th>
+                            <th>Học kỳ</th>
+                            <th>Điểm tổng</th>
+                            <th>Xếp loại</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="diem, iterStat : ${diemRenLuyenList}">
+                            <td th:text="${iterStat.count}"></td>
+                            <td th:text="${diem.hkNh.namHoc}"></td>
+                            <td>
+                                <th:block th:switch="${diem.hkNh.hocKy != null ? diem.hkNh.hocKy.name : 'UNKNOWN'}">
+                                    <span th:case="'ONE'">Học kỳ 1</span>
+                                    <span th:case="'TWO'">Học kỳ 2</span>
+                                    <span th:case="'THREE'">Học kỳ 3</span>
+                                    <span th:case="*">Không xác định</span>
+                                </th:block>
+                            </td>
+                            <td th:text="${diem.diemTong}"></td>
+                            <td>
+                                <th:block th:switch="${diem.xepLoai != null ? diem.xepLoai.name : 'UNKNOWN'}">
+                                    <span th:case="'XUAT_SAC'" class="badge bg-success" th:text="'Xuất sắc'"></span>
+                                    <span th:case="'GIOI'" class="badge bg-primary" th:text="'Giỏi'"></span>
+                                    <span th:case="'KHA'" class="badge bg-info text-dark" th:text="'Khá'"></span>
+                                    <span th:case="'TRUNG_BINH'" class="badge bg-warning text-dark" th:text="'Trung bình'"></span>
+                                    <span th:case="'YEU'" class="badge bg-danger" th:text="'Yếu'"></span>
+                                    <span th:case="'KEM'" class="badge bg-secondary" th:text="'Kém'"></span>
+                                    <span th:case="*" class="badge bg-light text-dark"
+                                          th:text="${diem.xepLoai != null ? diem.xepLoai.name : 'Không xác định'}"></span>
+                                </th:block>
+                            </td>
+                            <td>
+                                <a th:href="@{/sinh-vien/{sinhVienId}/thanh-tich-chi-tiet(sinhVienId=${diem.sinhVien.id}, diemRenLuyenId=${diem.id}, hknhId=${diem.hkNh.id})}"
+                                   class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <!-- Danh sách hoạt động đã đăng ký hoặc báo thiếu -->
-            <h3 class="mt-4">Danh sách tham gia hoạt động ngoại khóa đã đăng ký hoặc báo thiếu</h3>
-            <div th:if="${dangKyList == null || dangKyList.isEmpty()}" class="alert alert-warning">
-                Sinh viên chưa đăng ký hoặc báo thiếu hoạt động ngoại khóa nào.
-            </div>
-            <table class="table table-bordered" th:if="${dangKyList != null && !dangKyList.isEmpty()}">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Tên hoạt động</th>
-                        <th>Điểm cộng</th>
-                        <th>Điều</th>
-                        <th>Trạng thái</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="thamGia, iterStat : ${dangKyList}">
-                        <td th:text="${iterStat.count}"></td>
-                        <td th:text="${thamGia.hoatDongNgoaiKhoa?.tenHoatDong} ?: 'N/A'"></td>
-                        <td th:text="${thamGia.hoatDongNgoaiKhoa?.diemRenLuyen} ?: '0'"></td>
-                        <td th:text="${thamGia.hoatDongNgoaiKhoa?.dieu?.tenDieu} ?: 'Không có điều'"></td>
-                        <td th:text="${thamGia.state} ?: 'N/A'"></td>
-                        
-                    </tr>
-                </tbody>
-            </table>
-            <div class="text-center">
-                <button class="btn btn-outline-primary">«</button>
-                <button class="btn btn-primary">1</button>
-                <button class="btn btn-outline-primary">»</button>
+            <div th:if="${diemRenLuyenList == null or diemRenLuyenList.isEmpty()}" class="alert alert-info">
+                Không có điểm rèn luyện nào cho sinh viên này.
             </div>
 
-            <a th:href="@{/sinh-vien}" class="btn btn-primary mt-3">Quay lại</a>
+            <div class="text-center mt-4">
+                <a th:href="@{/sinh-vien}" class="btn btn-secondary">Quay lại</a>
+            </div>
         </main>
     </div>
     <div th:replace="~{base :: footer}"></div>
+    <script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

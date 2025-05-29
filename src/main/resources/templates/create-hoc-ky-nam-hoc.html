@@ -9,25 +9,44 @@
     <div class="content">
         <main class="container">
             <h1 class="text-center text-info mt-3">Tạo học kỳ/năm học mới</h1>
+
+            <!-- Thông báo lỗi hoặc thành công -->
             <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
             <div th:if="${message != null}" class="alert alert-success" th:text="${message}"></div>
+
+            <!-- Form tạo mới -->
             <form th:action="@{/hoc-ky-nam-hoc/create}" method="post" th:object="${hocKyNamHoc}">
+                <!-- Học kỳ -->
                 <div class="mb-3">
-                    <label>Học kỳ</label>
-                    <input type="text" class="form-control" th:field="*{hocKy}" required />
+                    <label for="hocKy" class="form-label">Học kỳ</label>
+                    <select id="hocKy" class="form-select" th:field="*{hocKy}" required>
+                        <option value="" disabled selected>Chọn học kỳ</option>
+                        <option th:each="hocKy : ${hocKyOptions}"
+                                th:value="${hocKy.name()}"
+                                th:text="${#strings.equals(hocKy.name(), 'ONE') ? 'Học kỳ 1' : (hocKy.name() == 'TWO' ? 'Học kỳ 2' : 'Học kỳ 3')}">
+                        </option>
+                    </select>
                 </div>
+
+                <!-- Năm học -->
                 <div class="mb-3">
-                    <label>Năm học</label>
-                    <input type="text" class="form-control" th:field="*{namHoc}" required />
+                    <label for="namHoc" class="form-label">Năm học</label>
+                    <input type="text" id="namHoc" class="form-control" th:field="*{namHoc}" required />
                 </div>
+
+                <!-- Ngày bắt đầu -->
                 <div class="mb-3">
-                    <label>Ngày bắt đầu</label>
-                    <input type="date" class="form-control" th:field="*{startDate}" required />
+                    <label for="startDate" class="form-label">Ngày bắt đầu</label>
+                    <input type="date" id="startDate" class="form-control" th:field="*{startDate}" required />
                 </div>
+
+                <!-- Ngày kết thúc -->
                 <div class="mb-3">
-                    <label>Ngày kết thúc</label>
-                    <input type="date" class="form-control" th:field="*{endDate}" required />
+                    <label for="endDate" class="form-label">Ngày kết thúc</label>
+                    <input type="date" id="endDate" class="form-control" th:field="*{endDate}" required />
                 </div>
+
+                <!-- Nút submit -->
                 <button type="submit" class="btn btn-primary">Tạo học kỳ/năm học</button>
             </form>
         </main>

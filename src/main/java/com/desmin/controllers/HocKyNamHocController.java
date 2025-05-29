@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.desmin.controllers;
 
 import com.desmin.pojo.HocKyNamHoc;
@@ -46,6 +42,8 @@ public class HocKyNamHocController {
     @PreAuthorize("hasRole('CVCTSV')")
     public String createHocKyNamHocForm(Model model) {
         model.addAttribute("hocKyNamHoc", new HocKyNamHoc());
+        // Truyền danh sách giá trị enum HocKy
+        model.addAttribute("hocKyOptions", HocKyNamHoc.HocKy.values());
         return "create-hoc-ky-nam-hoc";
     }
 

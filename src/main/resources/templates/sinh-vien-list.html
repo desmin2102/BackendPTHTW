@@ -23,7 +23,6 @@
                         <th>Tên Khoa</th>
                         <th>Tên Lớp</th>
                         <th>Thành tích ngoại khóa</th>
-                        
                     </tr>
                 </thead>
                 <tbody>
@@ -34,9 +33,8 @@
                         <td th:text="${sinhVien.lop?.khoa?.tenKhoa} ?: 'Chưa gán khoa'"></td>
                         <td th:text="${sinhVien.lop?.tenLop} ?: 'Chưa gán lớp'"></td>
                         <td>
-                            <a th:href="@{/sinh-vien/{id}/thanh-tich(id=${sinhVien.id})}" class="btn btn-info">Xem thành tích</a>
+                            <a th:href="@{/sinh-vien/thanh-tich(sinhVienId=${sinhVien.id})}" class="btn btn-info">Xem thành tích</a>
                         </td>
-                        
                     </tr>
                 </tbody>
             </table>

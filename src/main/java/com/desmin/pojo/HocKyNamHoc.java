@@ -100,4 +100,12 @@ public class HocKyNamHoc implements Serializable {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+    public String getHocKyHienThi() {
+    return switch (this.hocKy) {
+        case ONE -> "Học kỳ 1";
+        case TWO -> "Học kỳ 2";
+        case THREE -> "Học kỳ 3";
+    };
+}
+
 }

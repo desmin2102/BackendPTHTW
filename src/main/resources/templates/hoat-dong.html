@@ -10,6 +10,7 @@
         <main class="container">
             <h1 class="text-center text-info mt-3">Danh sách hoạt động ngoại khóa</h1>
             <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${message != null}" class="alert alert-success" th:text="${message}"></div>
             <a th:href="@{/hoat-dong/create}" class="btn btn-primary mb-3">Tạo hoạt động mới</a>
             <div th:if="${hoatDongs == null or hoatDongs.isEmpty()}" class="alert alert-info">
                 Không có hoạt động nào.
@@ -33,7 +34,11 @@
                         <td th:text="${hoatDong.diemRenLuyen}"></td>
                         <td th:text="${hoatDong.hanDangKy}"></td>
                         <td>
-                            <a th:href="@{/hoat-dong/{id}/tham-gia(id=${hoatDong.id})}" class="btn btn-info">Nạp danh sách SV </a>
+                            <a th:href="@{/hoat-dong/export-csv/{id}(id=${hoatDong.id})}" class="btn btn-secondary btn-sm">In danh sách</a>
+                            <form th:action="@{/hoat-dong/diem-danh-csv/{id}(id=${hoatDong.id})}" method="post" enctype="multipart/form-data" style="display: inline;">
+                                <input type="file" name="file" accept=".csv" required style="display: none;" th:id="'fileInput-' + ${hoatDong.id}" onchange="this.form.submit()">
+                                <button type="button" class="btn btn-primary btn-sm" th:onclick="'document.getElementById(\'fileInput-' + ${hoatDong.id} + '\').click()'">Điểm danh CSV</button>
+                            </form>
                         </td>
                     </tr>
                 </tbody>

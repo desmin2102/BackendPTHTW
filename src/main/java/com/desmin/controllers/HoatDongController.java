@@ -6,15 +6,24 @@ import com.desmin.pojo.HocKyNamHoc;
 import com.desmin.services.DieuService;
 import com.desmin.services.HoatDongNgoaiKhoaService;
 import com.desmin.services.HocKyNamHocService;
+import com.desmin.services.ThamGiaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
@@ -35,6 +44,9 @@ public class HoatDongController {
 
     @Autowired
     private HocKyNamHocService hocKyNamHocService;
+
+    @Autowired
+    private ThamGiaService thamGiaService;
 
     @GetMapping
     @PreAuthorize("hasRole('CVCTSV')")
@@ -138,5 +150,47 @@ public class HoatDongController {
             model.addAttribute("hocKyList", hocKyList != null ? hocKyList : Collections.emptyList());
             return "create-hoat-dong";
         }
+    }
+
+    @GetMapping("/export-csv/{id}")
+    @PreAuthorize("hasRole('CVCTSV')")
+    public ResponseEntity<Resource> exportThamGiaToCsv(@PathVariable("id") Long hoatDongId) {
+        try {
+            byte[] csvBytes = thamGiaService.exportThamGiaToCsv(hoatDongId);
+
+            ByteArrayResource resource = new ByteArrayResource(csvBytes);
+
+            HttpHeaders headers = new HttpHeaders();
+            String fileName = "tham_gia_hoat_dong_" + hoatDongId + ".csv";
+            headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvBytes.length)
+                    .body(resource);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ByteArrayResource(("Lỗi: " + e.getMessage()).getBytes()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ByteArrayResource(("Lỗi khi xuất file CSV: " + e.getMessage()).getBytes()));
+        }
+    }
+
+    @PostMapping("/diem-danh-csv/{id}")
+    @PreAuthorize("hasRole('CVCTSV')")
+    public String diemDanhByCsv(@PathVariable("id") Long hoatDongId,
+                                @RequestParam("file") MultipartFile file,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            thamGiaService.diemDanhByCsv(hoatDongId, file);
+            redirectAttributes.addFlashAttribute("message", "Điểm danh và cộng điểm thành công!");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi điểm danh: " + e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xử lý file CSV: " + e.getMessage());
+        }
+        return "redirect:/hoat-dong";
     }
 }
